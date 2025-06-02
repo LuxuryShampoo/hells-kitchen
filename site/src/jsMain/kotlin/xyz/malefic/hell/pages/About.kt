@@ -9,12 +9,10 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.core.Page
-import com.varabyte.kobweb.core.layout.Layout
 import org.jetbrains.compose.web.dom.Text
 
 @Page("/about")
 @Composable
-@Layout(".styles.layouts.PixelatedLayout")
 fun AboutPage() {
     Box(Modifier.fillMaxSize(), Alignment.Center) {
         Column(Modifier.fillMaxSize(), Arrangement.SpaceAround, Alignment.CenterHorizontally) {

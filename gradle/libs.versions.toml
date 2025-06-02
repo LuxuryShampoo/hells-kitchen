@@ -2,6 +2,7 @@
 jetbrains-compose = "1.8.1"
 kobweb = "0.22.0"
 kotlin = "2.1.21"
+datetime = "0.6.2"
 
 [libraries]
 compose-html-core = { module = "org.jetbrains.compose.html:html-core", version.ref = "jetbrains-compose" }
@@ -14,6 +15,7 @@ silk-icons-fa = { module = "com.varabyte.kobwebx:silk-icons-fa", version.ref = "
 silk-icons-mdi = { module = "com.varabyte.kobwebx:silk-icons-mdi", version.ref = "kobweb" }
 http4k-core = { group = "org.http4k", name = "http4k-core"}
 http4k-server-undertow = { group = "org.http4k", name = "http4k-server-undertow" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "datetime" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

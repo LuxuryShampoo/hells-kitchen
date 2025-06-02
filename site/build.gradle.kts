@@ -20,23 +20,12 @@ kobweb {
 kotlin {
     configAsKobwebApplication("hells-kitchen")
 
-    js {
-        browser {
-            commonWebpackConfig {
-                cssSupport {
-                    enabled.set(true)
-                }
-            }
-        }
-        binaries.executable()
-    }
-
     sourceSets {
         jsMain.dependencies {
-            implementation(npm("html2canvas", "1.4.1"))
+            implementation(libs.bundles.silk.icons)
+            implementation(libs.kotlinx.datetime)
             implementation(libs.bundles.compose)
             implementation(libs.bundles.kobweb)
-            implementation(libs.bundles.silk.icons)
         }
     }
 }
