@@ -1,4 +1,4 @@
-package xyz.malefic.multipage
+package xyz.malefic.hell
 
 import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.compose.ui.modifiers.minHeight

@@ -5,7 +5,7 @@ plugins {
     application
 }
 
-group = "xyz.malefic.multipage"
+group = "xyz.malefic.hell"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -46,7 +46,7 @@ tasks {
             }
 
             val process =
-                ProcessBuilder("java", "-cp", sourceSets["main"].runtimeClasspath.asPath, "xyz.malefic.multipage.MainKt")
+                ProcessBuilder("java", "-cp", sourceSets["main"].runtimeClasspath.asPath, "xyz.malefic.hell.MainKt")
                     .redirectOutput(ProcessBuilder.Redirect.INHERIT)
                     .redirectError(ProcessBuilder.Redirect.INHERIT)
                     .start()
@@ -78,5 +78,5 @@ tasks {
 }
 
 application {
-    mainClass.set("xyz.malefic.multipage.MainKt")
+    mainClass.set("xyz.malefic.hell.MainKt")
 }

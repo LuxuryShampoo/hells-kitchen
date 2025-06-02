@@ -1,14 +1,14 @@
 site:
-  title: "Malefic Kobweb Multi Page Template"
+  title: "Hell's Kitchen"
 
 server:
   files:
     dev:
       contentRoot: "build/processedResources/js/main/public"
-      script: "build/kotlin-webpack/js/developmentExecutable/multipage.js"
-      api: "build/libs/multipage.jar"
+      script: "build/kotlin-webpack/js/developmentExecutable/hells-kitchen.js"
+      api: "build/libs/hells-kitchen.jar"
     prod:
-      script: "build/kotlin-webpack/js/productionExecutable/multipage.js"
+      script: "build/kotlin-webpack/js/productionExecutable/hells-kitchen.js"
       siteRoot: ".kobweb/site"
 
   port: 8080

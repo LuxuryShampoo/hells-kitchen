@@ -6,22 +6,34 @@ plugins {
     alias(libs.plugins.kobweb.application)
 }
 
-group = "xyz.malefic.multipage"
+group = "xyz.malefic.hell"
 version = "1.0-SNAPSHOT"
 
 kobweb {
     app {
         index {
-            description.set("Powered by Kobweb")
+            description.set("A story-based cooking game")
         }
     }
 }
 
 kotlin {
-    configAsKobwebApplication("multipage")
+    configAsKobwebApplication("hells-kitchen")
+
+    js {
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
+        }
+        binaries.executable()
+    }
 
     sourceSets {
         jsMain.dependencies {
+            implementation(npm("html2canvas", "1.4.1"))
             implementation(libs.bundles.compose)
             implementation(libs.bundles.kobweb)
             implementation(libs.bundles.silk.icons)

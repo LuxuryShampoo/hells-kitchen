@@ -1,4 +1,4 @@
-package xyz.malefic.multipage.pages
+package xyz.malefic.hell.pages
 
 import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -6,12 +6,14 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.core.Page
-import org.jetbrains.compose.web.dom.Text
+import com.varabyte.kobweb.core.layout.Layout
+import com.varabyte.kobweb.silk.components.graphics.Image
 
 @Page
 @Composable
+@Layout(".styles.layouts.PixelatedLayout")
 fun HomePage() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("THIS PAGE INTENTIONALLY LEFT BLANK!")
+    Box(Modifier.fillMaxSize(), Alignment.Center) {
+        Image("https://gallery.malefic.xyz/photos/Ace%20Of%20Hearts/Hearts.png")
     }
 }

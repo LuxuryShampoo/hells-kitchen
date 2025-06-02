@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "multipage"
+rootProject.name = "hells-kitchen"
 
 include(":site")
 include("server")
