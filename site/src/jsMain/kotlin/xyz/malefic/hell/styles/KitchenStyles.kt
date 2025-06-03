@@ -19,14 +19,9 @@ import com.varabyte.kobweb.compose.ui.modifiers.height
 import com.varabyte.kobweb.compose.ui.modifiers.justifyContent
 import com.varabyte.kobweb.compose.ui.modifiers.left
 import com.varabyte.kobweb.compose.ui.modifiers.margin
-import com.varabyte.kobweb.compose.ui.modifiers.maxHeight
-import com.varabyte.kobweb.compose.ui.modifiers.maxWidth
-import com.varabyte.kobweb.compose.ui.modifiers.minHeight
-import com.varabyte.kobweb.compose.ui.modifiers.minWidth
 import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.position
-import com.varabyte.kobweb.compose.ui.modifiers.right
 import com.varabyte.kobweb.compose.ui.modifiers.top
 import com.varabyte.kobweb.compose.ui.modifiers.transition
 import com.varabyte.kobweb.compose.ui.modifiers.width
@@ -66,12 +61,8 @@ object KitchenStyles {
         CssStyle {
             base {
                 Modifier
-                    .width(80.vw)
-                    .height(70.vh)
-                    .minWidth(600.px)
-                    .minHeight(400.px)
-                    .maxWidth(1000.px)
-                    .maxHeight(700.px)
+                    .width(800.px)
+                    .height(500.px)
                     .backgroundColor(Color.rgb(240, 240, 240))
                     .borderRadius(15.px)
                     .boxShadow(offsetY = 5.px, blurRadius = 15.px, color = rgba(0, 0, 0, 0.3))
@@ -134,7 +125,7 @@ object KitchenStyles {
                     .height(120.px)
                     .backgroundColor(Color.rgb(60, 60, 60))
                     .position(Position.Absolute)
-                    .right(100.px)
+                    .left(500.px)
                     .top(100.px)
                     .borderRadius(8.px)
                     .boxShadow(offsetY = 3.px, blurRadius = 5.px, color = rgba(0, 0, 0, 0.2))

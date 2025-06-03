@@ -1,4 +1,4 @@
-package xyz.malefic.hell
+package xyz.malefic.hell.util
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport
@@ -21,12 +21,14 @@ fun isCollision(
     x: Int,
     y: Int,
     objects: List<CollisionObject>,
+    characterSize: Int = 30,
 ): Boolean {
     for (obj in objects) {
-        if (x >= obj.x &&
+        if (
             x < obj.x + obj.width &&
-            y >= obj.y &&
-            y < obj.y + obj.height
+            x + characterSize > obj.x &&
+            y < obj.y + obj.height &&
+            y + characterSize > obj.y
         ) {
             return true
         }

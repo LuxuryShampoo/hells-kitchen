@@ -10,6 +10,7 @@ import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
 import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
 import com.varabyte.kobweb.compose.ui.modifiers.classNames
@@ -32,10 +33,11 @@ import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
-import xyz.malefic.hell.CollisionObject
-import xyz.malefic.hell.isCollision
-import xyz.malefic.hell.setupKeyboardControls
 import xyz.malefic.hell.styles.KitchenStyles
+import xyz.malefic.hell.util.CollisionObject
+import xyz.malefic.hell.util.collide
+import xyz.malefic.hell.util.isCollision
+import xyz.malefic.hell.util.setupKeyboardControls
 import kotlin.js.Date
 
 data class Point(
@@ -50,18 +52,10 @@ fun Kitchen1() {
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
 
-    // Define collision objects
-    val collisionObjects =
-        remember {
-            listOf(
-                // Counter
-                CollisionObject(100, 100, 200, 100),
-                // Stove
-                CollisionObject(500, 100, 180, 120),
-            )
-        }
+    // Use a mutable list for collision objects
+    val collisionObjects = remember { mutableListOf<CollisionObject>() }
+    collisionObjects.clear() // Clear before each recomposition
 
-    // Update time
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
             currentTime = time
@@ -69,7 +63,6 @@ fun Kitchen1() {
         }
     }
 
-    // Set up keyboard controls
     LaunchedEffect(Unit) {
         setupKeyboardControls { keyCode ->
             val newX =
@@ -78,16 +71,13 @@ fun Kitchen1() {
                     "ArrowRight" -> characterPosition.x + 10
                     else -> characterPosition.x
                 }
-
             val newY =
                 when (keyCode) {
                     "ArrowUp" -> characterPosition.y - 10
                     "ArrowDown" -> characterPosition.y + 10
                     else -> characterPosition.y
                 }
-
-            // Check bounds and collisions
-            if (newX in 0..750 && newY in 0..350) {
+            if (newX in 0..770 && newY in 0..470) { // 800-30, 500-30
                 val tentativePos = Point(newX, newY)
                 if (!isCollision(newX, newY, collisionObjects)) {
                     characterPosition = tentativePos
@@ -99,84 +89,80 @@ fun Kitchen1() {
     Div(KitchenStyles.container.toAttrs()) {
         Div(KitchenStyles.content.toAttrs()) {
             Div(KitchenStyles.kitchenContainer.toAttrs()) {
-                // Kitchen floor
                 Div(KitchenStyles.floor.toAttrs())
 
-                // Counter
-                Div(KitchenStyles.counter.toAttrs()) {
-                    // Cutting board
+                Div(
+                    KitchenStyles.counter
+                        .toModifier()
+                        .collide(100, 100, 200, 100, collisionObjects)
+                        .toAttrs(),
+                ) {
                     Div(KitchenStyles.cuttingBoard.toAttrs())
                 }
 
-                // Stove
-                Div(KitchenStyles.stove.toAttrs()) {
-                    // Burners
+                Div(
+                    KitchenStyles.stove
+                        .toModifier()
+                        .collide(500, 100, 180, 120, collisionObjects)
+                        .toAttrs(),
+                ) {
                     for (i in 0 until 4) {
                         val row = i / 2
                         val col = i % 2
                         Div(
-                            attrs =
-                                Modifier
-                                    .classNames(KitchenStyles.burner.name)
-                                    .position(Position.Absolute)
-                                    .left((20 + col * 80).px)
-                                    .top((20 + row * 60).px)
-                                    .toAttrs(),
+                            Modifier
+                                .classNames(KitchenStyles.burner.name)
+                                .position(Position.Absolute)
+                                .left((20 + col * 80).px)
+                                .top((20 + row * 60).px)
+                                .toAttrs(),
                         )
                     }
                 }
 
                 // Character
                 Div(
-                    attrs =
-                        Modifier
-                            .classNames(KitchenStyles.character.name)
-                            .left(characterPosition.x.px)
-                            .top(characterPosition.y.px)
-                            .toAttrs(),
+                    Modifier
+                        .classNames(KitchenStyles.character.name)
+                        .left(characterPosition.x.px)
+                        .top(characterPosition.y.px)
+                        .toAttrs(),
                 ) {
-                    // Character face
                     Div(
-                        attrs =
-                            Modifier
-                                .classNames(KitchenStyles.characterFace.name)
-                                .toAttrs(),
+                        Modifier
+                            .classNames(KitchenStyles.characterFace.name)
+                            .toAttrs(),
                     ) {
-                        // Eyes
                         Div(
-                            attrs =
-                                Modifier
-                                    .size(5.px, 5.px)
-                                    .backgroundColor(com.varabyte.kobweb.compose.ui.graphics.Colors.White)
-                                    .position(Position.Absolute)
-                                    .left(3.px)
-                                    .top(2.px)
-                                    .borderRadius(50.percent)
-                                    .toAttrs(),
+                            Modifier
+                                .size(5.px, 5.px)
+                                .backgroundColor(Colors.White)
+                                .position(Position.Absolute)
+                                .left(3.px)
+                                .top(2.px)
+                                .borderRadius(50.percent)
+                                .toAttrs(),
                         )
                         Div(
-                            attrs =
-                                Modifier
-                                    .size(5.px, 5.px)
-                                    .backgroundColor(com.varabyte.kobweb.compose.ui.graphics.Colors.White)
-                                    .position(Position.Absolute)
-                                    .left(12.px)
-                                    .top(2.px)
-                                    .borderRadius(50.percent)
-                                    .toAttrs(),
+                            Modifier
+                                .size(5.px, 5.px)
+                                .backgroundColor(Colors.White)
+                                .position(Position.Absolute)
+                                .left(12.px)
+                                .top(2.px)
+                                .borderRadius(50.percent)
+                                .toAttrs(),
                         )
                     }
                 }
             }
         }
 
-        // Footer with instructions and time
         Box(KitchenStyles.footer.toModifier()) {
             P(
-                attrs =
-                    Modifier
-                        .classNames(KitchenStyles.instructions.name)
-                        .toAttrs(),
+                Modifier
+                    .classNames(KitchenStyles.instructions.name)
+                    .toAttrs(),
             ) {
                 Text("Use arrow keys to move the Mii character around the kitchen")
             }
