@@ -13,6 +13,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.display
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
 import com.varabyte.kobweb.compose.ui.modifiers.flexDirection
+import com.varabyte.kobweb.compose.ui.modifiers.flexWrap
 import com.varabyte.kobweb.compose.ui.modifiers.fontSize
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.height
@@ -31,6 +32,7 @@ import com.varabyte.kobweb.silk.style.CssStyle
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
+import org.jetbrains.compose.web.css.FlexWrap
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.ms
@@ -68,6 +70,9 @@ object KitchenStyles {
                     .boxShadow(offsetY = 5.px, blurRadius = 15.px, color = rgba(0, 0, 0, 0.3))
                     .position(Position.Relative)
                     .overflow(Overflow.Hidden)
+                    .display(DisplayStyle.Flex)
+                    .alignItems(AlignItems.Center)
+                    .justifyContent(JustifyContent.Center)
             }
         }
 
@@ -129,6 +134,11 @@ object KitchenStyles {
                     .top(100.px)
                     .borderRadius(8.px)
                     .boxShadow(offsetY = 3.px, blurRadius = 5.px, color = rgba(0, 0, 0, 0.2))
+                    .display(DisplayStyle.Flex)
+                    .flexDirection(FlexDirection.Row)
+                    .flexWrap(FlexWrap.Wrap)
+                    .alignItems(AlignItems.Center)
+                    .justifyContent(JustifyContent.Center)
             }
         }
 
@@ -140,6 +150,19 @@ object KitchenStyles {
                     .height(40.px)
                     .backgroundColor(Color.rgb(80, 80, 80))
                     .borderRadius(50.percent)
+                    .margin(10.px)
+            }
+        }
+
+    val burnerTall =
+        CssStyle {
+            base {
+                Modifier
+                    .width(40.px)
+                    .height(90.px)
+                    .backgroundColor(Color.rgb(80, 80, 80))
+                    .borderRadius(20.px)
+                    .margin(10.px)
             }
         }
 

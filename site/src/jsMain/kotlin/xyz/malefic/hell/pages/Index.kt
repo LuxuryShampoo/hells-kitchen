@@ -113,9 +113,9 @@ fun HomePage() {
     }
 }
 
-private fun updateDateTime(update: (String, String) -> Unit) {
+fun updateDateTime(update: (String, String) -> Unit) {
     val updateTime = {
-        val date = js("new Date()") as Date
+        val date = Date()
         val hours = date.getHours().toString().padStart(2, '0')
         val minutes = date.getMinutes().toString().padStart(2, '0')
         val time = "$hours:$minutes"

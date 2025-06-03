@@ -1,5 +1,3 @@
-# Simple Conventional Commit Configuration
-
 types:
   - feat: A new feature
   - fix: A bug fix
