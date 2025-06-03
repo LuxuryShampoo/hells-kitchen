@@ -10,13 +10,9 @@ import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Colors
-import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
-import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
 import com.varabyte.kobweb.compose.ui.modifiers.classNames
 import com.varabyte.kobweb.compose.ui.modifiers.left
 import com.varabyte.kobweb.compose.ui.modifiers.position
-import com.varabyte.kobweb.compose.ui.modifiers.size
 import com.varabyte.kobweb.compose.ui.modifiers.top
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
@@ -28,16 +24,15 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.Position
-import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import xyz.malefic.hell.components.Player
+import xyz.malefic.hell.components.rememberPlayerPosition
 import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
 import xyz.malefic.hell.util.collide
-import xyz.malefic.hell.util.isCollision
-import xyz.malefic.hell.util.setupKeyboardControls
 import kotlin.js.Date
 
 data class Point(
@@ -48,7 +43,6 @@ data class Point(
 @Page("/kitchen1")
 @Composable
 fun Kitchen1() {
-    var characterPosition by remember { mutableStateOf(Point(300, 250)) }
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
 
@@ -56,33 +50,15 @@ fun Kitchen1() {
     val collisionObjects = remember { mutableListOf<CollisionObject>() }
     collisionObjects.clear() // Clear before each recomposition
 
+    val characterPosition =
+        rememberPlayerPosition(
+            collisionObjects = collisionObjects,
+        )
+
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
             currentTime = time
             currentDay = day
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        setupKeyboardControls { keyCode ->
-            val newX =
-                when (keyCode) {
-                    "ArrowLeft" -> characterPosition.x - 10
-                    "ArrowRight" -> characterPosition.x + 10
-                    else -> characterPosition.x
-                }
-            val newY =
-                when (keyCode) {
-                    "ArrowUp" -> characterPosition.y - 10
-                    "ArrowDown" -> characterPosition.y + 10
-                    else -> characterPosition.y
-                }
-            if (newX in 0..770 && newY in 0..470) { // 800-30, 500-30
-                val tentativePos = Point(newX, newY)
-                if (!isCollision(newX, newY, collisionObjects)) {
-                    characterPosition = tentativePos
-                }
-            }
         }
     }
 
@@ -93,7 +69,6 @@ fun Kitchen1() {
 
                 Div(
                     KitchenStyles.counter
-                        .toModifier()
                         .collide(100, 100, 200, 100, collisionObjects)
                         .toAttrs(),
                 ) {
@@ -102,7 +77,6 @@ fun Kitchen1() {
 
                 Div(
                     KitchenStyles.stove
-                        .toModifier()
                         .collide(500, 100, 180, 120, collisionObjects)
                         .toAttrs(),
                 ) {
@@ -120,41 +94,7 @@ fun Kitchen1() {
                     }
                 }
 
-                // Character
-                Div(
-                    Modifier
-                        .classNames(KitchenStyles.character.name)
-                        .left(characterPosition.x.px)
-                        .top(characterPosition.y.px)
-                        .toAttrs(),
-                ) {
-                    Div(
-                        Modifier
-                            .classNames(KitchenStyles.characterFace.name)
-                            .toAttrs(),
-                    ) {
-                        Div(
-                            Modifier
-                                .size(5.px, 5.px)
-                                .backgroundColor(Colors.White)
-                                .position(Position.Absolute)
-                                .left(3.px)
-                                .top(2.px)
-                                .borderRadius(50.percent)
-                                .toAttrs(),
-                        )
-                        Div(
-                            Modifier
-                                .size(5.px, 5.px)
-                                .backgroundColor(Colors.White)
-                                .position(Position.Absolute)
-                                .left(12.px)
-                                .top(2.px)
-                                .borderRadius(50.percent)
-                                .toAttrs(),
-                        )
-                    }
-                }
+                Player(characterPosition)
             }
         }
 

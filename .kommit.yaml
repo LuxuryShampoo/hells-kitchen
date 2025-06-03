@@ -11,7 +11,7 @@ scopes:
   all:
     - ui
     - server
-    - character
+    - move
     - docs
 
 options:

@@ -2,19 +2,32 @@ package xyz.malefic.hell.util
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport
-fun setupKeyboardControls(
-    @Suppress("kotlin:S1172") onKeyPress: (String) -> Unit,
-) {
+fun setupKeyboardControls(onKeysPressed: (Set<String>) -> Unit) {
+    @Suppress("UnusedVariable", "kotlin:S1481")
     js(
         """
+        window._kobweb_pressedKeys = new Set();
         document.addEventListener('keydown', function(event) {
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
                 event.preventDefault();
-                onKeyPress(event.code);
+                window._kobweb_pressedKeys.add(event.code);
             }
         });
-    """,
+        document.addEventListener('keyup', function(event) {
+            window._kobweb_pressedKeys.delete(event.code);
+        });
+        function gameLoop() {
+            window._kobweb_keysArray = Array.from(window._kobweb_pressedKeys);
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
+        """,
     )
+
+    fun getPressedKeys(): Set<String> = js("window._kobweb_keysArray ? window._kobweb_keysArray : []").unsafeCast<Array<String>>().toSet()
+    kotlinx.browser.window.setInterval({
+        onKeysPressed(getPressedKeys())
+    }, 16) // ~60fps
 }
 
 fun isCollision(
