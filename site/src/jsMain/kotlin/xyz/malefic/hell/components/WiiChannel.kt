@@ -1,32 +1,14 @@
 package xyz.malefic.hell.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.web.events.SyntheticMouseEvent
+import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
-import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Color
-import com.varabyte.kobweb.compose.ui.modifiers.alignItems
-import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
-import com.varabyte.kobweb.compose.ui.modifiers.color
-import com.varabyte.kobweb.compose.ui.modifiers.display
-import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
-import com.varabyte.kobweb.compose.ui.modifiers.flexDirection
-import com.varabyte.kobweb.compose.ui.modifiers.fontSize
-import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
-import com.varabyte.kobweb.compose.ui.modifiers.justifyContent
-import com.varabyte.kobweb.compose.ui.modifiers.onClick
-import com.varabyte.kobweb.compose.ui.modifiers.textAlign
+import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
-import com.varabyte.kobweb.silk.style.toModifier
-import org.jetbrains.compose.web.css.AlignItems
-import org.jetbrains.compose.web.css.DisplayStyle
-import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.px
-import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 import xyz.malefic.hell.styles.WiiHomeStyles
@@ -34,47 +16,33 @@ import org.jetbrains.compose.web.css.Color as CssColor
 
 @Composable
 fun WiiChannel(
-    name: String,
+    text: String,
     color: String,
-    onClick: (SyntheticMouseEvent) -> Unit = {},
+    onClick: () -> Unit = {}
 ) {
+    val isDisabled = color == "darkgray"
+    
     Box(
-        WiiHomeStyles.channelButton
-            .toModifier()
-            .backgroundColor(mapColorNameToColor(color))
-            .onClick(onClick),
-        Alignment.Center,
+        modifier = Modifier
+            .width(80.px)
+            .height(80.px)
+            .margin(8.px)
+            .borderRadius(10.px)
+            .background(CssColor(color))
+            .opacity(if (isDisabled) 0.7 else 1.0)
+            .cursor(if (isDisabled) Cursor.NotAllowed else Cursor.Pointer)
+            .onClick { if (!isDisabled) onClick() },
+        contentAlignment = Alignment.Center,
     ) {
-        Div(
+        Span(
             Modifier
-                .fillMaxSize()
-                .display(DisplayStyle.Flex)
-                .flexDirection(FlexDirection.Column)
-                .justifyContent(JustifyContent.Center)
-                .alignItems(AlignItems.Center)
+                .color(CssColor.white)
+                .fontWeight(FontWeight.Bold)
+                .fontSize(16.px)
+                .opacity(if (isDisabled) 0.6 else 1.0)
                 .toAttrs(),
         ) {
-            Span(
-                Modifier
-                    .color(CssColor.white)
-                    .textAlign(TextAlign.Center)
-                    .fontWeight(FontWeight.Bold)
-                    .fontSize(16.px)
-                    .toAttrs(),
-            ) {
-                Text(name)
-            }
+            Text(text)
         }
     }
 }
-
-private fun mapColorNameToColor(colorName: String): Color =
-    when (colorName.lowercase()) {
-        "blue" -> Color.rgb(0, 102, 204)
-        "green" -> Color.rgb(34, 139, 34)
-        "yellow" -> Color.rgb(255, 215, 0)
-        "red" -> Color.rgb(215, 30, 50)
-        "orange" -> Color.rgb(255, 140, 0)
-        "darkgray" -> Color.rgb(64, 64, 64)
-        else -> Color.rgb(240, 240, 240)
-    }

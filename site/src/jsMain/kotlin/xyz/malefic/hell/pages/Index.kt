@@ -28,6 +28,7 @@ fun HomePage() {
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
     var highestUnlockedLevel by remember { mutableStateOf(1) }
+    var miiClicked by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
@@ -39,7 +40,7 @@ fun HomePage() {
     Div(WiiHomeStyles.container.toAttrs()) {
         Div(WiiHomeStyles.content.toAttrs()) {
             Div(WiiHomeStyles.sidebarLeft.toAttrs()) {
-                WiiButton()
+                WiiButton(isClicked = miiClicked, onClick = { miiClicked = true })
             }
 
             Div(WiiHomeStyles.channelGrid.toAttrs()) {
@@ -47,7 +48,15 @@ fun HomePage() {
                     numColumns(base = 4),
                 ) {
                     (1..12).forEach { i ->
-                        if (i <= highestUnlockedLevel) {
+                        if (i == 1 && !miiClicked) {
+                            // Level 1 is locked until Mii is clicked
+                            WiiChannel(
+                                "Level $i",
+                                "darkgray", // Grey color to indicate locked
+                            ) {
+                                // Do nothing when clicked while locked
+                            }
+                        } else if (i <= highestUnlockedLevel) {
                             WiiChannel(
                                 "Level $i",
                                 when (i) {
@@ -62,39 +71,17 @@ fun HomePage() {
                             ) {
                                 when (i) {
                                     1 -> window.location.href = "/kitchen1"
-
-                                    2 -> { // Navigate to Level 2
-                                    }
-
-                                    3 -> { // Navigate to Level 3
-                                    }
-
-                                    4 -> { // Navigate to Level 4
-                                    }
-
-                                    5 -> { // Navigate to Level 5
-                                    }
-
-                                    6 -> { // Navigate to Level 6
-                                    }
-
-                                    7 -> { // Navigate to Level 7
-                                    }
-
-                                    8 -> { // Navigate to Level 8
-                                    }
-
-                                    9 -> { // Navigate to Level 9
-                                    }
-
-                                    10 -> { // Navigate to Level 10
-                                    }
-
-                                    11 -> { // Navigate to Level 11
-                                    }
-
-                                    else -> { // Navigate to Level 12
-                                    }
+                                    2 -> { /* Navigate to Level 2 */ }
+                                    3 -> { /* Navigate to Level 3 */ }
+                                    4 -> { /* Navigate to Level 4 */ }
+                                    5 -> { /* Navigate to Level 5 */ }
+                                    6 -> { /* Navigate to Level 6 */ }
+                                    7 -> { /* Navigate to Level 7 */ }
+                                    8 -> { /* Navigate to Level 8 */ }
+                                    9 -> { /* Navigate to Level 9 */ }
+                                    10 -> { /* Navigate to Level 10 */ }
+                                    11 -> { /* Navigate to Level 11 */ }
+                                    else -> { /* Navigate to Level 12 */ }
                                 }
                             }
                         } else {
