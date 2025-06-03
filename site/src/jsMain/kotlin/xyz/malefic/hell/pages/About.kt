@@ -11,8 +11,8 @@ import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.core.Page
 import org.jetbrains.compose.web.dom.Text
 
-@Page("/about")
 @Composable
+@Page("/about")
 fun AboutPage() {
     Box(Modifier.fillMaxSize(), Alignment.Center) {
         Column(Modifier.fillMaxSize(), Arrangement.SpaceAround, Alignment.CenterHorizontally) {

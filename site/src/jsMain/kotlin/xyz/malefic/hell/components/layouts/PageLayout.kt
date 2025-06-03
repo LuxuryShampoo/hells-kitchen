@@ -14,9 +14,11 @@ import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.position
 import com.varabyte.kobweb.compose.ui.modifiers.right
 import com.varabyte.kobweb.compose.ui.modifiers.top
+import com.varabyte.kobweb.core.layout.Layout
 import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.px
 
+@Layout
 @Composable
 fun PageLayout(content: @Composable () -> Unit) {
     Box(
