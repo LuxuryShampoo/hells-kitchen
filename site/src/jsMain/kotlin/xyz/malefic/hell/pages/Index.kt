@@ -14,6 +14,7 @@ import com.varabyte.kobweb.silk.style.toModifier
 import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.Div
 import xyz.malefic.hell.components.FooterBar
+import xyz.malefic.hell.components.OptionsButton
 import xyz.malefic.hell.components.WiiButton
 import xyz.malefic.hell.components.WiiChannel
 import xyz.malefic.hell.components.layouts.PageLayout
@@ -25,6 +26,7 @@ import kotlin.js.Date
 fun HomePage() {
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
+    var highestUnlockedLevel by remember { mutableStateOf(1) }
 
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
@@ -35,37 +37,41 @@ fun HomePage() {
 
     PageLayout {
         Div(WiiHomeStyles.container.toModifier().toAttrs()) {
-            // Main Content
             Div(WiiHomeStyles.content.toModifier().toAttrs()) {
-                // Left side Wii Button
                 Div(WiiHomeStyles.sidebarLeft.toModifier().toAttrs()) {
                     WiiButton()
                 }
 
-                // Main Grid for Channels
                 Div(WiiHomeStyles.channelGrid.toModifier().toAttrs()) {
                     SimpleGrid(
                         numColumns(base = 4),
-//                        breakpoint = Breakpoint.MD,
                     ) {
-                        WiiChannel("Mii Channel", "blue")
-                        WiiChannel("Shop Channel", "green")
-                        WiiChannel("Photo Channel", "yellow")
-                        WiiChannel("Wii Sports", "white")
-                        WiiChannel("News Channel", "red")
-                        WiiChannel("Weather Channel", "white")
-                        WiiChannel("Internet Channel", "orange")
-                        WiiChannel("Disc Channel", "blue")
+                        (1..12).forEach { i ->
+                            if (i <= highestUnlockedLevel) {
+                                WiiChannel(
+                                    "Level $i",
+                                    when (i) {
+                                        1, 8, 12 -> "blue"
+                                        2 -> "green"
+                                        3 -> "yellow"
+                                        4, 6, 10 -> "white"
+                                        5, 9 -> "red"
+                                        7, 11 -> "orange"
+                                        else -> "lightgray"
+                                    },
+                                )
+                            } else {
+                                EmptyChannel()
+                            }
+                        }
                     }
                 }
 
-                // Right side buttons/controls
                 Div(WiiHomeStyles.sidebarRight.toModifier().toAttrs()) {
-                    // Right side buttons would go here
+                    OptionsButton()
                 }
             }
 
-            // Footer bar with time and date
             FooterBar(currentTime, currentDay)
         }
     }
@@ -88,5 +94,8 @@ private fun updateDateTime(update: (String, String) -> Unit) {
     }
 
     updateTime()
-    window.setInterval(updateTime, 60000) // Update every minute
+    window.setInterval(updateTime, 60000)
 }
+
+@Composable
+fun EmptyChannel() = WiiChannel("Empty Channel", "darkgray")

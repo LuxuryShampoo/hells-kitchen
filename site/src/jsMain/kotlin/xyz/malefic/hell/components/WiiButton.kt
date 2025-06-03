@@ -23,12 +23,11 @@ fun WiiButton() {
         contentAlignment = Alignment.Center,
     ) {
         Span(
-            attrs =
-                Modifier
-                    .color(CssColor.white)
-                    .fontWeight(FontWeight.Bold)
-                    .fontSize(24.px)
-                    .toAttrs(),
+            Modifier
+                .color(CssColor.white)
+                .fontWeight(FontWeight.Bold)
+                .fontSize(24.px)
+                .toAttrs(),
         ) {
             Text("Wii")
         }

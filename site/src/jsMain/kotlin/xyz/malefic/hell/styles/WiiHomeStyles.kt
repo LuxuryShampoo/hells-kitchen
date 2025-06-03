@@ -57,7 +57,7 @@ object WiiHomeStyles {
                 Modifier
                     .fillMaxSize()
                     .backgroundImage(linearGradient(CssColor("#d9ecff"), CssColor("#c7e1ff")))
-                    .fontFamily("Arial, sans-serif")
+                    .fontFamily("Continuum")
                     .display(DisplayStyle.Flex)
                     .flexDirection(FlexDirection.Column)
                     .position(Position.Fixed)

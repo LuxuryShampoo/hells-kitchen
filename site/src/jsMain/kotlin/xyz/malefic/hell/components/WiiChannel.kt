@@ -72,5 +72,6 @@ private fun mapColorNameToColor(colorName: String): Color =
         "yellow" -> Color.rgb(255, 215, 0)
         "red" -> Color.rgb(215, 30, 50)
         "orange" -> Color.rgb(255, 140, 0)
-        else -> Color.rgb(240, 240, 240) // white/default
+        "darkgray" -> Color.rgb(64, 64, 64)
+        else -> Color.rgb(240, 240, 240)
     }
