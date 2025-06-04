@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
 import com.varabyte.kobweb.compose.ui.toAttrs
@@ -25,7 +26,6 @@ import xyz.malefic.hell.components.WiiChannel
 import xyz.malefic.hell.styles.WiiHomeStyles
 import xyz.malefic.hell.theme.AppTheme
 import xyz.malefic.hell.theme.LocalAppTheme
-import com.varabyte.kobweb.compose.ui.graphics.Color
 import kotlin.js.Date
 
 @Page
@@ -48,19 +48,20 @@ fun HomePage() {
         }
     }
 
-    val wiiButtonBackgroundColor = when (currentTheme) {
-        AppTheme.DAY_SUNNY -> Color.rgb(255, 215, 0) // Gold for Sun
-        AppTheme.DAY_CLOUDY -> Colors.LightGray      // Light gray for Cloudy Day
-        AppTheme.NIGHT -> Colors.WhiteSmoke         // WhiteSmoke for Night Cloud
-    }
+    val wiiButtonBackgroundColor =
+        when (currentTheme) {
+            AppTheme.DAY_SUNNY -> Color.rgb(255, 215, 0) // Gold for Sun
+            AppTheme.DAY_CLOUDY -> Colors.LightGray // Light gray for Cloudy Day
+            AppTheme.NIGHT -> Colors.WhiteSmoke // WhiteSmoke for Night Cloud
+        }
 
     Div {
         Div(WiiHomeStyles.content.toAttrs()) {
             Div(WiiHomeStyles.sidebarLeft.toAttrs()) {
                 WiiButton(
                     modifier = Modifier.backgroundColor(wiiButtonBackgroundColor),
-                    isClicked = miiClicked, 
-                    onClick = { miiClicked = true }
+                    isClicked = miiClicked,
+                    onClick = { miiClicked = true },
                 )
             }
 
@@ -87,7 +88,7 @@ fun HomePage() {
                                     4, 6, 10 -> "white"
                                     5, 9 -> "red"
                                     7, 11 -> "orange"
-                                    else -> "lightgray"
+                                    else -> "#5d5d5d" // Use #5d5d5d for any other unlocked levels
                                 },
                             ) {
                                 when (i) {
@@ -105,8 +106,20 @@ fun HomePage() {
                                     else -> { /* Navigate to Level 12 */ }
                                 }
                             }
+                        } else if (i == highestUnlockedLevel + 1) {
+                            WiiChannel(
+                                "Coming Soon!",
+                                "darkgray", // Dark gray for "Coming Soon!"
+                            ) {
+                                // No action for "Coming Soon!"
+                            }
                         } else {
-                            EmptyChannel()
+                            WiiChannel(
+                                "", // No text for empty channels
+                                "darkgray", // Use #5d5d5d for empty channels
+                            ) {
+                                // No action for empty channels
+                            }
                         }
                     }
                 }
@@ -140,6 +153,3 @@ fun updateDateTime(update: (String, String) -> Unit) {
     updateTime()
     window.setInterval(updateTime, 60000)
 }
-
-@Composable
-fun EmptyChannel() = WiiChannel("Empty Channel", "darkgray")

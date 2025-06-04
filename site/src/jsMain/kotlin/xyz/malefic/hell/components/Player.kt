@@ -31,6 +31,13 @@ enum class Direction {
     RIGHT,
 }
 
+data class KeyBindings(
+    val up: String,
+    val down: String,
+    val left: String,
+    val right: String
+)
+
 data class CharacterColors(
     val head: String = "#FFD590",
     val body: String = "#FF0000",
@@ -39,8 +46,8 @@ data class CharacterColors(
 )
 
 @Composable
-fun Player(position: PlayerPosition) {
-    val colors = loadCharacterColors()
+fun Player(position: PlayerPosition, playerId: Int) {
+    val colors = loadCharacterColors(playerId)
 
     Box(
         modifier =
@@ -178,9 +185,14 @@ fun Player(position: PlayerPosition) {
 }
 
 @Composable
-fun rememberPlayerPosition(collisionObjects: List<CollisionObject>): PlayerPosition {
+fun rememberPlayerPosition(
+    collisionObjects: List<CollisionObject>,
+    initialX: Int,
+    initialY: Int,
+    keyBindings: KeyBindings
+): PlayerPosition {
     val keysPressed = remember { mutableSetOf<String>() }
-    val playerPosition = remember { mutableStateOf(PlayerPosition(400, 300, false, Direction.DOWN)) }
+    val playerPosition = remember { mutableStateOf(PlayerPosition(initialX, initialY, false, Direction.DOWN)) }
 
     DisposableEffect(Unit) {
         val handleKeyDown = { event: KeyboardEvent ->
@@ -212,22 +224,22 @@ fun rememberPlayerPosition(collisionObjects: List<CollisionObject>): PlayerPosit
                 var direction = playerPosition.value.direction
                 var isMoving = false
 
-                if (keysPressed.contains("ArrowUp")) {
+                if (keysPressed.contains(keyBindings.up)) {
                     newY -= 5
                     direction = Direction.UP
                     isMoving = true
                 }
-                if (keysPressed.contains("ArrowDown")) {
+                if (keysPressed.contains(keyBindings.down)) {
                     newY += 5
                     direction = Direction.DOWN
                     isMoving = true
                 }
-                if (keysPressed.contains("ArrowLeft")) {
+                if (keysPressed.contains(keyBindings.left)) {
                     newX -= 5
                     direction = Direction.LEFT
                     isMoving = true
                 }
-                if (keysPressed.contains("ArrowRight")) {
+                if (keysPressed.contains(keyBindings.right)) {
                     newX += 5
                     direction = Direction.RIGHT
                     isMoving = true
@@ -268,11 +280,18 @@ fun rememberPlayerPosition(collisionObjects: List<CollisionObject>): PlayerPosit
     return playerPosition.value
 }
 
-private fun loadCharacterColors(): CharacterColors {
-    val headColor = localStorage.getItem("character_head") ?: "#FFD590"
-    val bodyColor = localStorage.getItem("character_body") ?: "#FF0000"
-    val armsColor = localStorage.getItem("character_arms") ?: "#FFD590"
-    val legsColor = localStorage.getItem("character_legs") ?: "#0000FF"
+private fun loadCharacterColors(playerId: Int): CharacterColors {
+    val defaultHeadColor = "#FFD590"
+    // Use green body for player 2 for diagnostics, red for player 1 (or non-2)
+    val defaultBodyColor = if (playerId == 2) "#00FF00" else "#FF0000"
+    val defaultArmsColor = "#FFD590"
+    val defaultLegsColor = "#0000FF"
+
+    // Try loading player-specific colors, then generic, then defaults
+    val headColor = localStorage.getItem("character_head_p$playerId") ?: localStorage.getItem("character_head") ?: defaultHeadColor
+    val bodyColor = localStorage.getItem("character_body_p$playerId") ?: localStorage.getItem("character_body") ?: defaultBodyColor
+    val armsColor = localStorage.getItem("character_arms_p$playerId") ?: localStorage.getItem("character_arms") ?: defaultArmsColor
+    val legsColor = localStorage.getItem("character_legs_p$playerId") ?: localStorage.getItem("character_legs") ?: defaultLegsColor
 
     return CharacterColors(headColor, bodyColor, armsColor, legsColor)
 }

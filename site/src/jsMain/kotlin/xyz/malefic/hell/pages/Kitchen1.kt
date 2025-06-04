@@ -32,8 +32,11 @@ import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import xyz.malefic.hell.components.KeyBindings
 import xyz.malefic.hell.components.Player
 import xyz.malefic.hell.components.rememberPlayerPosition
+import xyz.malefic.hell.components.PlayerPosition
+import xyz.malefic.hell.components.Direction
 import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
 import xyz.malefic.hell.util.collide
@@ -52,10 +55,27 @@ fun Kitchen1() {
     val collisionObjects = remember { mutableListOf<CollisionObject>() }
     collisionObjects.clear()
 
-    val characterPosition =
+    val keyBindingsP1 = KeyBindings(up = "ArrowUp", down = "ArrowDown", left = "ArrowLeft", right = "ArrowRight")
+    val characterPosition1 =
         rememberPlayerPosition(
             collisionObjects = collisionObjects,
+            initialX = 400,
+            initialY = 300,
+            keyBindings = keyBindingsP1,
         )
+
+    // Comment out dynamic Player 2 position for now
+    // val keyBindingsP2 = KeyBindings(up = "w", down = "s", left = "a", right = "d")
+    // val characterPosition2 =
+    //     rememberPlayerPosition(
+    //         collisionObjects = collisionObjects, 
+    //         initialX = 350,            
+    //         initialY = 300,
+    //         keyBindings = keyBindingsP2,
+    //     )
+    
+    // Hardcode Player 2 position for diagnostics
+    val hardcodedP2Position = PlayerPosition(x = 100, y = 100, isMoving = false, direction = Direction.DOWN)
 
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
@@ -111,7 +131,8 @@ fun Kitchen1() {
                     Burner()
                 }
 
-                Player(characterPosition)
+                Player(characterPosition1, playerId = 1)
+                Player(hardcodedP2Position, playerId = 2)
             }
         }
 
