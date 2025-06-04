@@ -9,6 +9,10 @@ import androidx.compose.runtime.setValue
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.Overflow
+import com.varabyte.kobweb.compose.css.color
+import com.varabyte.kobweb.compose.css.cursor
+import com.varabyte.kobweb.compose.css.fontSize
+import com.varabyte.kobweb.compose.css.fontWeight
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.alignItems
@@ -44,6 +48,13 @@ import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.FlexWrap
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.LineStyle
+import org.jetbrains.compose.web.css.backgroundColor
+import org.jetbrains.compose.web.css.border
+import org.jetbrains.compose.web.css.borderRadius
+import org.jetbrains.compose.web.css.color
+import org.jetbrains.compose.web.css.fontSize
+import org.jetbrains.compose.web.css.fontWeight
+import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Button
@@ -79,29 +90,29 @@ private fun LaunchedEffect(
 @Page("/character-customize")
 @Composable
 fun CharacterCustomizePage() {
-    // Load player characters from localStorage
     var player1Colors by remember { mutableStateOf(loadCharacterColors(1)) }
     var player2Colors by remember { mutableStateOf(loadCharacterColors(2)) }
     var hasSecondPlayer by remember { mutableStateOf(localStorage.getItem("has_second_player") == "true") }
-    
-    // Determine active player from URL query parameter, default to 1
-    var activePlayer by remember { 
+
+    var activePlayer by remember {
         val params = window.location.search.let { if (it.startsWith("?")) it.substring(1) else it }
-        val playerParam = params.split("&").find { it.startsWith("player=") }?.split("=")?.getOrNull(1)
+        val playerParam =
+            params
+                .split("&")
+                .find { it.startsWith("player=") }
+                ?.split("=")
+                ?.getOrNull(1)
         mutableStateOf(playerParam?.toIntOrNull() ?: 1)
     }
 
     LaunchedEffect(Unit) {
         localStorage.setItem("mii_clicked", "true")
-        // If URL specifies player 2, ensure hasSecondPlayer is true
         if (activePlayer == 2 && !hasSecondPlayer) {
             hasSecondPlayer = true
             localStorage.setItem("has_second_player", "true")
-            // Optionally, initialize P2 colors if they haven't been loaded or are default
-            // This might be redundant if loadCharacterColors(2) already handles defaults well
-            if (player2Colors == CharacterColors(head = "#FFD590", body = "#FF0000", arms = "#FFD590", legs = "#0000FF")) { // Check if P2 colors are P1 default
-                 player2Colors = generateDifferentColors(player1Colors) // Or use specific P2 defaults
-                 saveCharacterColors(player2Colors, 2)
+            if (player2Colors == CharacterColors(head = "#FFD590", body = "#FF0000", arms = "#FFD590", legs = "#0000FF")) {
+                player2Colors = generateDifferentColors(player1Colors) // Or use specific P2 defaults
+                saveCharacterColors(player2Colors, 2)
             }
         }
     }
@@ -273,14 +284,14 @@ fun CharacterCustomizePage() {
                             saveCharacterColors(player2Colors, 2)
                         }
                         style {
-                            property("padding", "12px 24px")
-                            property("background-color", "#4CAF50")
-                            property("color", "white")
+                            padding(12.px, 24.px)
+                            backgroundColor(CssColor("#4CAF50"))
+                            color(CssColor.white)
                             property("border", "none")
-                            property("border-radius", "4px")
-                            property("font-size", "16px")
-                            property("font-weight", "bold")
-                            property("cursor", "pointer")
+                            borderRadius(4.px)
+                            fontSize(16.px)
+                            fontWeight(FontWeight.Bold)
+                            cursor(Cursor.Pointer)
                         }
                     },
                 ) {
@@ -552,7 +563,6 @@ private fun colorSelector(
 private fun loadCharacterColors(playerNumber: Int = 1): CharacterColors {
     val suffix = "_p$playerNumber"
 
-    // Defaults matching Player.kt
     val defaultHead = "#FFD590"
     val defaultP1Body = "#FF0000"
     val defaultP2Body = "#0000FF"

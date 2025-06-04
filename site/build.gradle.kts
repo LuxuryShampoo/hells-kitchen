@@ -13,9 +13,9 @@ version = "1.0-SNAPSHOT"
 kobweb {
     app {
         index {
-            description.set("A story-based cooking game")
+            description.set("A story-based cooking game!")
             head.add {
-                link(rel = "stylesheet", href = "/fonts/faces.css")
+                link("/fonts/faces.css", "stylesheet")
             }
         }
     }
@@ -30,6 +30,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.bundles.compose)
             implementation(libs.bundles.kobweb)
+            implementation(libs.kermit)
         }
     }
 }

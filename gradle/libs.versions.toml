@@ -3,6 +3,7 @@ jetbrains-compose = "1.8.1"
 kobweb = "0.22.0"
 kotlin = "2.1.21"
 datetime = "0.6.2"
+kermit = "2.0.4"
 
 [libraries]
 compose-html-core = { module = "org.jetbrains.compose.html:html-core", version.ref = "jetbrains-compose" }
@@ -16,6 +17,7 @@ silk-icons-mdi = { module = "com.varabyte.kobwebx:silk-icons-mdi", version.ref =
 http4k-core = { group = "org.http4k", name = "http4k-core"}
 http4k-server-undertow = { group = "org.http4k", name = "http4k-server-undertow" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "datetime" }
+kermit = { group = "co.touchlab", name = "kermit", version.ref = "kermit" }
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

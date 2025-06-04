@@ -1,14 +1,18 @@
 package xyz.malefic.hell.styles
 
+import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.Overflow
 import com.varabyte.kobweb.compose.css.Transition
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Color
+import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.alignItems
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
+import com.varabyte.kobweb.compose.ui.modifiers.border
 import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
 import com.varabyte.kobweb.compose.ui.modifiers.boxShadow
 import com.varabyte.kobweb.compose.ui.modifiers.color
+import com.varabyte.kobweb.compose.ui.modifiers.cursor
 import com.varabyte.kobweb.compose.ui.modifiers.display
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
@@ -56,6 +60,24 @@ object KitchenStyles {
                     .alignItems(AlignItems.Center)
                     .justifyContent(JustifyContent.Center)
                     .padding(top = 2.vh)
+            }
+        }
+
+    val leave =
+        CssStyle {
+            base {
+                Modifier
+                    .position(Position.Absolute)
+                    .top(20.px)
+                    .left(20.px)
+                    .zIndex(999)
+                    .padding(topBottom = 8.px, leftRight = 16.px)
+                    .backgroundColor(Color.rgb(34, 34, 34))
+                    .color(Colors.White)
+                    .borderRadius(8.px)
+                    .border(width = 0.px)
+                    .boxShadow(offsetX = 0.px, offsetY = 2.px, blurRadius = 4.px, color = rgba(0, 0, 0, 0.3))
+                    .cursor(Cursor.Pointer)
             }
         }
 

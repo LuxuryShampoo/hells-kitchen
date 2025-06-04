@@ -1,7 +1,7 @@
 package xyz.malefic.hell.pages
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -10,9 +10,9 @@ import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.graphics.Color
-import com.varabyte.kobweb.compose.ui.graphics.Colors
-import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.modifiers.classNames
+import com.varabyte.kobweb.compose.ui.modifiers.left
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.style.toAttrs
@@ -20,27 +20,26 @@ import com.varabyte.kobweb.silk.style.toModifier
 import com.varabyte.kobweb.silk.theme.name
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import org.jetbrains.compose.web.css.*
-import com.varabyte.kobweb.compose.css.Cursor
+import org.jetbrains.compose.web.css.AlignItems
+import org.jetbrains.compose.web.css.DisplayStyle
+import org.jetbrains.compose.web.css.FlexDirection
+import org.jetbrains.compose.web.css.JustifyContent
+import org.jetbrains.compose.web.css.alignItems
+import org.jetbrains.compose.web.css.display
+import org.jetbrains.compose.web.css.flexDirection
+import org.jetbrains.compose.web.css.height
+import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
-import xyz.malefic.hell.components.KeyBindings
-import xyz.malefic.hell.components.Player
-import xyz.malefic.hell.components.PlayerPosition
-import xyz.malefic.hell.components.rememberPlayerPosition
+import xyz.malefic.hell.components.player.KeyBindings
+import xyz.malefic.hell.components.player.Player
+import xyz.malefic.hell.components.player.rememberPlayerPosition
 import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
 import xyz.malefic.hell.util.collide
-
-data class Point(
-    val x: Int,
-    val y: Int,
-)
 
 @Page("/kitchen1")
 @Composable
@@ -54,24 +53,15 @@ fun Kitchen1() {
 
     val keyBindingsP1 = KeyBindings(up = "ArrowUp", down = "ArrowDown", left = "ArrowLeft", right = "ArrowRight")
     val characterPosition1 =
-        rememberPlayerPosition(
-            collisionObjects = collisionObjects,
-            initialX = 400,
-            initialY = 300,
-            keyBindings = keyBindingsP1,
-        )
+        rememberPlayerPosition(collisionObjects, 400, 300, keyBindingsP1)
 
-    val characterPosition2: PlayerPosition? = if (hasSecondPlayer) {
-        val keyBindingsP2 = KeyBindings(up = "w", down = "s", left = "a", right = "d")
-        rememberPlayerPosition(
-            collisionObjects = collisionObjects, 
-            initialX = 300, 
-            initialY = 300,
-            keyBindings = keyBindingsP2,
-        )
-    } else {
-        null
-    }
+    val characterPosition2 =
+        if (hasSecondPlayer) {
+            val keyBindingsP2 = KeyBindings(up = "w", down = "s", left = "a", right = "d")
+            rememberPlayerPosition(collisionObjects, 300, 300, keyBindingsP2)
+        } else {
+            null
+        }
 
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
@@ -82,20 +72,17 @@ fun Kitchen1() {
 
     Div(KitchenStyles.container.toAttrs()) {
         Button(
-            attrs = Modifier
-                .position(Position.Absolute)
-                .top(20.px)
-                .left(20.px)
-                .zIndex(100)
-                .padding(topBottom = 8.px, leftRight = 16.px)
-                .backgroundColor(Color.rgb(34, 34, 34))
-                .color(Colors.White)
-                .borderRadius(8.px)
-                .border(width = 0.px)
-                .boxShadow(offsetX = 0.px, offsetY = 2.px, blurRadius = 4.px, color = rgba(0, 0, 0, 0.3))
-                .cursor(Cursor.Pointer)
-                .onClick { window.location.href = "/" }
-                .toAttrs()
+            KitchenStyles.leave.toAttrs {
+                onClick {
+                    console.log("Leave button clicked")
+                    try {
+                        window.location.assign("/")
+                        console.log("Navigation triggered successfully")
+                    } catch (e: Exception) {
+                        console.error("Error during navigation: ${e.message}")
+                    }
+                }
+            },
         ) {
             Text("Leave")
         }
@@ -147,7 +134,7 @@ fun Kitchen1() {
                 }
 
                 Player(characterPosition1, playerId = 1)
-                if (characterPosition2 != null) {
+                characterPosition2?.let {
                     Player(characterPosition2, playerId = 2)
                 }
             }
@@ -159,11 +146,12 @@ fun Kitchen1() {
                     .classNames(KitchenStyles.instructions.name)
                     .toAttrs(),
             ) {
-                val instructionText = if (hasSecondPlayer) {
-                    "Use WASD and the arrow keys to move the Mii characters around the kitchen"
-                } else {
-                    "Use arrow keys to move the Mii character around the kitchen"
-                }
+                val instructionText =
+                    if (hasSecondPlayer) {
+                        "Use the arrow keys and WASD to move the Mii characters around the kitchen"
+                    } else {
+                        "Use arrow keys to move the Mii character around the kitchen"
+                    }
                 Text(instructionText)
             }
 
@@ -187,20 +175,5 @@ fun Kitchen1() {
                 }
             }
         }
-    }
-}
-
-@OptIn(DelicateCoroutinesApi::class)
-@Composable
-private fun LaunchedEffect(
-    key: Any,
-    block: suspend () -> Unit,
-) {
-    DisposableEffect(key) {
-        val job =
-            GlobalScope.launch {
-                block()
-            }
-        onDispose { job.cancel() }
     }
 }
