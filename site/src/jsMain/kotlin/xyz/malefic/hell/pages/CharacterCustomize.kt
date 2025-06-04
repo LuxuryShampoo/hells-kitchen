@@ -83,11 +83,27 @@ fun CharacterCustomizePage() {
     var player1Colors by remember { mutableStateOf(loadCharacterColors(1)) }
     var player2Colors by remember { mutableStateOf(loadCharacterColors(2)) }
     var hasSecondPlayer by remember { mutableStateOf(localStorage.getItem("has_second_player") == "true") }
-    var activePlayer by remember { mutableStateOf(1) }
+    
+    // Determine active player from URL query parameter, default to 1
+    var activePlayer by remember { 
+        val params = window.location.search.let { if (it.startsWith("?")) it.substring(1) else it }
+        val playerParam = params.split("&").find { it.startsWith("player=") }?.split("=")?.getOrNull(1)
+        mutableStateOf(playerParam?.toIntOrNull() ?: 1)
+    }
 
-    // Set miiClicked to true in localStorage when the page loads
     LaunchedEffect(Unit) {
         localStorage.setItem("mii_clicked", "true")
+        // If URL specifies player 2, ensure hasSecondPlayer is true
+        if (activePlayer == 2 && !hasSecondPlayer) {
+            hasSecondPlayer = true
+            localStorage.setItem("has_second_player", "true")
+            // Optionally, initialize P2 colors if they haven't been loaded or are default
+            // This might be redundant if loadCharacterColors(2) already handles defaults well
+            if (player2Colors == CharacterColors(head = "#FFD590", body = "#FF0000", arms = "#FFD590", legs = "#0000FF")) { // Check if P2 colors are P1 default
+                 player2Colors = generateDifferentColors(player1Colors) // Or use specific P2 defaults
+                 saveCharacterColors(player2Colors, 2)
+            }
+        }
     }
 
     val colorOptions =
@@ -534,12 +550,19 @@ private fun colorSelector(
 }
 
 private fun loadCharacterColors(playerNumber: Int = 1): CharacterColors {
-    val prefix = if (playerNumber == 1) "character_" else "character2_"
+    val suffix = "_p$playerNumber"
 
-    val headColor = localStorage.getItem("${prefix}head") ?: if (playerNumber == 1) "#FFD590" else "#FFD590"
-    val bodyColor = localStorage.getItem("${prefix}body") ?: if (playerNumber == 1) "#FF0000" else "#00FF00"
-    val armsColor = localStorage.getItem("${prefix}arms") ?: if (playerNumber == 1) "#FFD590" else "#FFD590"
-    val legsColor = localStorage.getItem("${prefix}legs") ?: if (playerNumber == 1) "#0000FF" else "#000000"
+    // Defaults matching Player.kt
+    val defaultHead = "#FFD590"
+    val defaultP1Body = "#FF0000"
+    val defaultP2Body = "#0000FF"
+    val defaultArms = "#FFD590"
+    val defaultLegs = "#0000FF"
+
+    val headColor = localStorage.getItem("character_head$suffix") ?: defaultHead
+    val bodyColor = localStorage.getItem("character_body$suffix") ?: if (playerNumber == 2) defaultP2Body else defaultP1Body
+    val armsColor = localStorage.getItem("character_arms$suffix") ?: defaultArms
+    val legsColor = localStorage.getItem("character_legs$suffix") ?: defaultLegs
 
     return CharacterColors(headColor, bodyColor, armsColor, legsColor)
 }
@@ -548,12 +571,12 @@ private fun saveCharacterColors(
     colors: CharacterColors,
     playerNumber: Int = 1,
 ) {
-    val prefix = if (playerNumber == 1) "character_" else "character2_"
+    val suffix = "_p$playerNumber"
 
-    localStorage.setItem("${prefix}head", colors.head)
-    localStorage.setItem("${prefix}body", colors.body)
-    localStorage.setItem("${prefix}arms", colors.arms)
-    localStorage.setItem("${prefix}legs", colors.legs)
+    localStorage.setItem("character_head$suffix", colors.head)
+    localStorage.setItem("character_body$suffix", colors.body)
+    localStorage.setItem("character_arms$suffix", colors.arms)
+    localStorage.setItem("character_legs$suffix", colors.legs)
 }
 
 private fun colorsMatch(

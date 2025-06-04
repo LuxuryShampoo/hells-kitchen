@@ -10,33 +10,29 @@ import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.modifiers.classNames
+import com.varabyte.kobweb.compose.ui.graphics.Color
+import com.varabyte.kobweb.compose.ui.graphics.Colors
+import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.silk.style.toAttrs
 import com.varabyte.kobweb.silk.style.toModifier
 import com.varabyte.kobweb.silk.theme.name
+import kotlinx.browser.localStorage
+import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.web.css.AlignItems
-import org.jetbrains.compose.web.css.DisplayStyle
-import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.JustifyContent
-import org.jetbrains.compose.web.css.alignItems
-import org.jetbrains.compose.web.css.display
-import org.jetbrains.compose.web.css.flexDirection
-import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.justifyContent
-import org.jetbrains.compose.web.css.percent
+import org.jetbrains.compose.web.css.*
+import com.varabyte.kobweb.compose.css.Cursor
+import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
 import xyz.malefic.hell.components.KeyBindings
 import xyz.malefic.hell.components.Player
-import xyz.malefic.hell.components.rememberPlayerPosition
 import xyz.malefic.hell.components.PlayerPosition
-import xyz.malefic.hell.components.Direction
+import xyz.malefic.hell.components.rememberPlayerPosition
 import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
 import xyz.malefic.hell.util.collide
@@ -51,6 +47,7 @@ data class Point(
 fun Kitchen1() {
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
+    val hasSecondPlayer by remember { mutableStateOf(localStorage.getItem("has_second_player") == "true") }
 
     val collisionObjects = remember { mutableListOf<CollisionObject>() }
     collisionObjects.clear()
@@ -64,18 +61,17 @@ fun Kitchen1() {
             keyBindings = keyBindingsP1,
         )
 
-    // Comment out dynamic Player 2 position for now
-    // val keyBindingsP2 = KeyBindings(up = "w", down = "s", left = "a", right = "d")
-    // val characterPosition2 =
-    //     rememberPlayerPosition(
-    //         collisionObjects = collisionObjects, 
-    //         initialX = 350,            
-    //         initialY = 300,
-    //         keyBindings = keyBindingsP2,
-    //     )
-    
-    // Hardcode Player 2 position for diagnostics
-    val hardcodedP2Position = PlayerPosition(x = 100, y = 100, isMoving = false, direction = Direction.DOWN)
+    val characterPosition2: PlayerPosition? = if (hasSecondPlayer) {
+        val keyBindingsP2 = KeyBindings(up = "w", down = "s", left = "a", right = "d")
+        rememberPlayerPosition(
+            collisionObjects = collisionObjects, 
+            initialX = 300, 
+            initialY = 300,
+            keyBindings = keyBindingsP2,
+        )
+    } else {
+        null
+    }
 
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
@@ -85,6 +81,25 @@ fun Kitchen1() {
     }
 
     Div(KitchenStyles.container.toAttrs()) {
+        Button(
+            attrs = Modifier
+                .position(Position.Absolute)
+                .top(20.px)
+                .left(20.px)
+                .zIndex(100)
+                .padding(topBottom = 8.px, leftRight = 16.px)
+                .backgroundColor(Color.rgb(34, 34, 34))
+                .color(Colors.White)
+                .borderRadius(8.px)
+                .border(width = 0.px)
+                .boxShadow(offsetX = 0.px, offsetY = 2.px, blurRadius = 4.px, color = rgba(0, 0, 0, 0.3))
+                .cursor(Cursor.Pointer)
+                .onClick { window.location.href = "/" }
+                .toAttrs()
+        ) {
+            Text("Leave")
+        }
+
         Div(KitchenStyles.content.toAttrs()) {
             Div(KitchenStyles.kitchenContainer.toAttrs()) {
                 Div(KitchenStyles.floor.toAttrs())
@@ -132,7 +147,9 @@ fun Kitchen1() {
                 }
 
                 Player(characterPosition1, playerId = 1)
-                Player(hardcodedP2Position, playerId = 2)
+                if (characterPosition2 != null) {
+                    Player(characterPosition2, playerId = 2)
+                }
             }
         }
 
@@ -142,7 +159,12 @@ fun Kitchen1() {
                     .classNames(KitchenStyles.instructions.name)
                     .toAttrs(),
             ) {
-                Text("Use arrow keys to move the Mii character around the kitchen")
+                val instructionText = if (hasSecondPlayer) {
+                    "Use WASD and the arrow keys to move the Mii characters around the kitchen"
+                } else {
+                    "Use arrow keys to move the Mii character around the kitchen"
+                }
+                Text(instructionText)
             }
 
             Column(

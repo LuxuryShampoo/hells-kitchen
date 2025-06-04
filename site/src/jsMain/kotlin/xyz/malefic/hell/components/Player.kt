@@ -282,16 +282,18 @@ fun rememberPlayerPosition(
 
 private fun loadCharacterColors(playerId: Int): CharacterColors {
     val defaultHeadColor = "#FFD590"
-    // Use green body for player 2 for diagnostics, red for player 1 (or non-2)
-    val defaultBodyColor = if (playerId == 2) "#00FF00" else "#FF0000"
+    val p1DefaultBodyColor = "#FF0000" // Red for Player 1 default
+    val p2DefaultBodyColor = "#0000FF" // Blue for Player 2 default
     val defaultArmsColor = "#FFD590"
-    val defaultLegsColor = "#0000FF"
+    val defaultLegsColor = "#0000FF" // Default legs color, can be same for both or different
 
-    // Try loading player-specific colors, then generic, then defaults
-    val headColor = localStorage.getItem("character_head_p$playerId") ?: localStorage.getItem("character_head") ?: defaultHeadColor
-    val bodyColor = localStorage.getItem("character_body_p$playerId") ?: localStorage.getItem("character_body") ?: defaultBodyColor
-    val armsColor = localStorage.getItem("character_arms_p$playerId") ?: localStorage.getItem("character_arms") ?: defaultArmsColor
-    val legsColor = localStorage.getItem("character_legs_p$playerId") ?: localStorage.getItem("character_legs") ?: defaultLegsColor
+    // Load player-specific colors. If not found, use player-specific defaults.
+    val headColor = localStorage.getItem("character_head_p$playerId") ?: defaultHeadColor
+    val armsColor = localStorage.getItem("character_arms_p$playerId") ?: defaultArmsColor
+    val legsColor = localStorage.getItem("character_legs_p$playerId") ?: defaultLegsColor
+
+    val bodyColor = localStorage.getItem("character_body_p$playerId") ?: 
+                  (if (playerId == 2) p2DefaultBodyColor else p1DefaultBodyColor)
 
     return CharacterColors(headColor, bodyColor, armsColor, legsColor)
 }

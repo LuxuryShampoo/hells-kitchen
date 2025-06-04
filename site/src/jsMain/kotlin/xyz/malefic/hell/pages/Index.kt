@@ -61,7 +61,11 @@ fun HomePage() {
                 WiiButton(
                     modifier = Modifier.backgroundColor(wiiButtonBackgroundColor),
                     isClicked = miiClicked,
-                    onClick = { miiClicked = true },
+                    onClick = {
+                        miiClicked = true
+                        localStorage.setItem("mii_clicked", "true")
+                        window.location.href = "/character-customize?player=1" // Specify player 1
+                    },
                 )
             }
 
