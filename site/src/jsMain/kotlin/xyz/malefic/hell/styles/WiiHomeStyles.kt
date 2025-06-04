@@ -56,7 +56,6 @@ object WiiHomeStyles {
             base {
                 Modifier
                     .fillMaxSize()
-                    .backgroundImage(linearGradient(CssColor("#d9ecff"), CssColor("#c7e1ff")))
                     .fontFamily("Continuum")
                     .display(DisplayStyle.Flex)
                     .flexDirection(FlexDirection.Column)
@@ -120,7 +119,6 @@ object WiiHomeStyles {
                 Modifier
                     .fillMaxWidth()
                     .height(15.vh)
-                    .backgroundColor(Color.rgb(220, 230, 240))
                     .borderRadius(topLeft = 30.px, topRight = 30.px)
                     .boxShadow(offsetY = (-2).px, blurRadius = 5.px, color = rgba(0, 0, 0, 0.1))
             }

@@ -6,6 +6,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Colors
+import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.core.layout.Layout
@@ -20,17 +23,20 @@ import xyz.malefic.hell.components.OptionsButton
 import xyz.malefic.hell.components.WiiButton
 import xyz.malefic.hell.components.WiiChannel
 import xyz.malefic.hell.styles.WiiHomeStyles
+import xyz.malefic.hell.theme.AppTheme
+import xyz.malefic.hell.theme.LocalAppTheme
+import com.varabyte.kobweb.compose.ui.graphics.Color
 import kotlin.js.Date
 
 @Page
 @Composable
 @Layout(".components.layouts.PageLayout")
 fun HomePage() {
+    val currentTheme = LocalAppTheme.current
+
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
     var highestUnlockedLevel by remember { mutableStateOf(1) }
-
-    // Check localStorage to see if Mii has been clicked before
     var miiClicked by remember {
         mutableStateOf(localStorage.getItem("mii_clicked") == "true")
     }
@@ -42,10 +48,20 @@ fun HomePage() {
         }
     }
 
-    Div(WiiHomeStyles.container.toAttrs()) {
+    val wiiButtonBackgroundColor = when (currentTheme) {
+        AppTheme.DAY_SUNNY -> Color.rgb(255, 215, 0) // Gold for Sun
+        AppTheme.DAY_CLOUDY -> Colors.LightGray      // Light gray for Cloudy Day
+        AppTheme.NIGHT -> Colors.WhiteSmoke         // WhiteSmoke for Night Cloud
+    }
+
+    Div {
         Div(WiiHomeStyles.content.toAttrs()) {
             Div(WiiHomeStyles.sidebarLeft.toAttrs()) {
-                WiiButton(isClicked = miiClicked, onClick = { miiClicked = true })
+                WiiButton(
+                    modifier = Modifier.backgroundColor(wiiButtonBackgroundColor),
+                    isClicked = miiClicked, 
+                    onClick = { miiClicked = true }
+                )
             }
 
             Div(WiiHomeStyles.channelGrid.toAttrs()) {
@@ -63,7 +79,7 @@ fun HomePage() {
                             }
                         } else if (i <= highestUnlockedLevel) {
                             WiiChannel(
-                                "Level $i",
+                                "Chapter $i",
                                 when (i) {
                                     1, 8, 12 -> "blue"
                                     2 -> "green"

@@ -5,6 +5,7 @@ import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
+import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.style.toModifier
@@ -14,28 +15,28 @@ import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 import xyz.malefic.hell.styles.WiiHomeStyles
-import org.jetbrains.compose.web.css.Color as CssColor
 
 @Composable
 fun WiiButton(
+    modifier: Modifier = Modifier,
     isClicked: Boolean = false,
     onClick: () -> Unit = {},
 ) {
+    val textColor = Color.rgb(70, 70, 70)
+
     Box(
-        modifier =
-            WiiHomeStyles.wiiButton
-                .toModifier()
-                .onClick {
-                    onClick()
-                    // Set miiClicked in localStorage
-                    localStorage.setItem("mii_clicked", "true")
-                    window.location.href = "/character-customize"
-                },
+        modifier = WiiHomeStyles.wiiButton.toModifier()
+            .then(modifier)
+            .onClick {
+                onClick()
+                localStorage.setItem("mii_clicked", "true")
+                window.location.href = "/character-customize"
+            },
         contentAlignment = Alignment.Center,
     ) {
         Span(
             Modifier
-                .color(CssColor.white)
+                .color(textColor)
                 .fontWeight(FontWeight.Bold)
                 .fontSize(24.px)
                 .toAttrs(),
