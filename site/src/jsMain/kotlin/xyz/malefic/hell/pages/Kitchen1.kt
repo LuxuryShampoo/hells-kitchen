@@ -74,13 +74,7 @@ fun Kitchen1() {
         Button(
             KitchenStyles.leave.toAttrs {
                 onClick {
-                    console.log("Leave button clicked")
-                    try {
-                        window.location.assign("/")
-                        console.log("Navigation triggered successfully")
-                    } catch (e: Exception) {
-                        console.error("Error during navigation: ${e.message}")
-                    }
+                    window.location.assign("/channel/1")
                 }
             },
         ) {

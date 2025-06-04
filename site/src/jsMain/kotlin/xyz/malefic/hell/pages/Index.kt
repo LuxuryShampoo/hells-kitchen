@@ -50,9 +50,9 @@ fun HomePage() {
 
     val wiiButtonBackgroundColor =
         when (currentTheme) {
-            AppTheme.DAY_SUNNY -> Color.rgb(255, 215, 0) // Gold for Sun
-            AppTheme.DAY_CLOUDY -> Colors.LightGray // Light gray for Cloudy Day
-            AppTheme.NIGHT -> Colors.WhiteSmoke // WhiteSmoke for Night Cloud
+            AppTheme.DAY_SUNNY -> Color.rgb(255, 215, 0)
+            AppTheme.DAY_CLOUDY -> Colors.LightGray
+            AppTheme.NIGHT -> Colors.WhiteSmoke
         }
 
     Div {
@@ -74,55 +74,48 @@ fun HomePage() {
                     numColumns(base = 4),
                 ) {
                     (1..12).forEach { i ->
-                        if (i == 1 && !miiClicked) {
-                            // Level 1 is locked until Mii is clicked
-                            WiiChannel(
-                                "Level $i",
-                                "darkgray", // This will use the darker grey in WiiChannel
-                            ) {
-                                // No action when locked
-                            }
-                        } else if (i <= highestUnlockedLevel) {
-                            WiiChannel(
-                                "Chapter $i",
-                                when (i) {
-                                    1, 8, 12 -> "blue"
-                                    2 -> "green"
-                                    3 -> "yellow"
-                                    4, 6, 10 -> "white"
-                                    5, 9 -> "red"
-                                    7, 11 -> "orange"
-                                    else -> "#5d5d5d" // Use #5d5d5d for any other unlocked levels
-                                },
-                            ) {
-                                when (i) {
-                                    1 -> window.location.href = "/kitchen1"
-                                    2 -> { /* Navigate to Level 2 */ }
-                                    3 -> { /* Navigate to Level 3 */ }
-                                    4 -> { /* Navigate to Level 4 */ }
-                                    5 -> { /* Navigate to Level 5 */ }
-                                    6 -> { /* Navigate to Level 6 */ }
-                                    7 -> { /* Navigate to Level 7 */ }
-                                    8 -> { /* Navigate to Level 8 */ }
-                                    9 -> { /* Navigate to Level 9 */ }
-                                    10 -> { /* Navigate to Level 10 */ }
-                                    11 -> { /* Navigate to Level 11 */ }
-                                    else -> { /* Navigate to Level 12 */ }
+                        when {
+                            i == 1 && !miiClicked -> {
+                                Div(attrs = {
+                                    title("Click the Mii to customize first")
+                                }) {
+                                    WiiChannel(
+                                        "Level $i",
+                                        "darkgray",
+                                    ) {}
                                 }
                             }
-                        } else if (i == highestUnlockedLevel + 1) {
-                            WiiChannel(
-                                "Coming Soon!",
-                                "darkgray", // Dark gray for "Coming Soon!"
-                            ) {
-                                // No action for "Coming Soon!"
+                            i <= highestUnlockedLevel -> {
+                                WiiChannel(
+                                    "Chapter $i",
+                                    when (i) {
+                                        1, 8, 12 -> "blue"
+                                        2 -> "green"
+                                        3 -> "yellow"
+                                        4, 6, 10 -> "white"
+                                        5, 9 -> "red"
+                                        7, 11 -> "orange"
+                                        else -> "#5d5d5d"
+                                    },
+                                ) {
+                                    window.location.assign("/channel/$i")
+                                }
                             }
-                        } else {
-                            WiiChannel(
-                                "", // No text for empty channels
-                                "darkgray", // Use #5d5d5d for empty channels
-                            ) {
-                                // No action for empty channels
+                            i == highestUnlockedLevel + 1 -> {
+                                WiiChannel(
+                                    "Coming Soon!",
+                                    "darkgray",
+                                ) {
+                                    // No action for "Coming Soon!"
+                                }
+                            }
+                            else -> {
+                                WiiChannel(
+                                    "", // No text for empty channels
+                                    "darkgray", // Use #5d5d5d for empty channels
+                                ) {
+                                    // No action for empty channels
+                                }
                             }
                         }
                     }
