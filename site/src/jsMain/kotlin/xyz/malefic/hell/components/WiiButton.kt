@@ -8,6 +8,8 @@ import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.*
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.style.toModifier
+import kotlinx.browser.localStorage
+import kotlinx.browser.window
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
@@ -23,15 +25,12 @@ fun WiiButton(
         modifier =
             WiiHomeStyles.wiiButton
                 .toModifier()
-                .then(
-                    if (!isClicked) {
-                        Modifier
-                            .border(4.px, LineStyle.Solid, CssColor("#ffe066"))
-                            .boxShadow(0.px, 0.px, 8.px, 0.px, CssColor("rgba(255, 224, 102, 0.5)"))
-                    } else {
-                        Modifier
-                    },
-                ).onClick { onClick() },
+                .onClick {
+                    onClick()
+                    // Set miiClicked in localStorage
+                    localStorage.setItem("mii_clicked", "true")
+                    window.location.href = "/character-customize"
+                },
         contentAlignment = Alignment.Center,
     ) {
         Span(

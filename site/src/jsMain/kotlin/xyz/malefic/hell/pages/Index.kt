@@ -12,6 +12,7 @@ import com.varabyte.kobweb.core.layout.Layout
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.style.toAttrs
+import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.Div
 import xyz.malefic.hell.components.FooterBar
@@ -28,7 +29,11 @@ fun HomePage() {
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
     var highestUnlockedLevel by remember { mutableStateOf(1) }
-    var miiClicked by remember { mutableStateOf(false) }
+
+    // Check localStorage to see if Mii has been clicked before
+    var miiClicked by remember {
+        mutableStateOf(localStorage.getItem("mii_clicked") == "true")
+    }
 
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
@@ -52,9 +57,9 @@ fun HomePage() {
                             // Level 1 is locked until Mii is clicked
                             WiiChannel(
                                 "Level $i",
-                                "darkgray", // Grey color to indicate locked
+                                "darkgray", // This will use the darker grey in WiiChannel
                             ) {
-                                // Do nothing when clicked while locked
+                                // No action when locked
                             }
                         } else if (i <= highestUnlockedLevel) {
                             WiiChannel(
