@@ -11,15 +11,13 @@ import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.classNames
-import com.varabyte.kobweb.compose.ui.modifiers.left
-import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
+import com.varabyte.kobweb.core.PageContext
 import com.varabyte.kobweb.silk.style.toAttrs
 import com.varabyte.kobweb.silk.style.toModifier
 import com.varabyte.kobweb.silk.theme.name
 import kotlinx.browser.localStorage
-import kotlinx.browser.window
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -43,7 +41,7 @@ import xyz.malefic.hell.util.collide
 
 @Page("/kitchen1")
 @Composable
-fun Kitchen1() {
+fun Kitchen1(ctx: PageContext) {
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
     val hasSecondPlayer by remember { mutableStateOf(localStorage.getItem("has_second_player") == "true") }
@@ -74,7 +72,7 @@ fun Kitchen1() {
         Button(
             KitchenStyles.leave.toAttrs {
                 onClick {
-                    window.location.assign("/channel/1")
+                    ctx.router.navigateTo("/channel/1")
                 }
             },
         ) {

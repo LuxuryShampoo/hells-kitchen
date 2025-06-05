@@ -8,9 +8,18 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.graphics.Colors
-import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
+import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
+import com.varabyte.kobweb.compose.ui.modifiers.color
+import com.varabyte.kobweb.compose.ui.modifiers.cursor
+import com.varabyte.kobweb.compose.ui.modifiers.fontSize
+import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
+import com.varabyte.kobweb.compose.ui.modifiers.height
+import com.varabyte.kobweb.compose.ui.modifiers.margin
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
+import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.compose.ui.toAttrs
-import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
 import xyz.malefic.hell.theme.AppTheme
@@ -19,45 +28,41 @@ import xyz.malefic.hell.theme.LocalAppTheme
 @Composable
 fun WiiChannel(
     text: String,
-    colorInput: String,
+    isDisabled: Boolean = false,
     onClick: () -> Unit = {},
 ) {
-    val currentTheme = LocalAppTheme.current
-    val isDisabled = colorInput == "darkgray"
-
     val channelBackgroundColor: Color
     val channelTextColor: Color
 
     if (isDisabled) {
-        channelBackgroundColor = Color.rgb(0x44, 0x44, 0x44) // #444444
+        channelBackgroundColor = Color.rgb(0x44, 0x44, 0x44)
         channelTextColor = Colors.LightGray
     } else {
-        when (currentTheme) {
+        when (LocalAppTheme.current) {
             AppTheme.DAY_SUNNY -> {
-                channelBackgroundColor = Color.rgb(255, 215, 0) // Gold for Sun
-                channelTextColor = Color.rgb(70, 70, 70)      // Dark Gray text for Sun
+                channelBackgroundColor = Color.rgb(255, 215, 0)
+                channelTextColor = Color.rgb(70, 70, 70)
             }
             AppTheme.DAY_CLOUDY -> {
-                channelBackgroundColor = Colors.LightGray      // Light gray for Cloudy Day
-                channelTextColor = Color.rgb(80, 80, 80)     // Dark Gray text for Cloudy Day
+                channelBackgroundColor = Colors.LightGray
+                channelTextColor = Color.rgb(80, 80, 80)
             }
             AppTheme.NIGHT -> {
-                channelBackgroundColor = Colors.WhiteSmoke         // WhiteSmoke for Night Cloud
-                channelTextColor = Color.rgb(80, 80, 80)     // Dark Gray text for Night Cloud
+                channelBackgroundColor = Colors.WhiteSmoke
+                channelTextColor = Color.rgb(80, 80, 80)
             }
         }
     }
 
     Box(
-        modifier =
-            Modifier
-                .width(140.px)
-                .height(100.px)
-                .margin(10.px)
-                .borderRadius(12.px)
-                .backgroundColor(channelBackgroundColor)
-                .cursor(if (isDisabled) Cursor.NotAllowed else Cursor.Pointer)
-                .onClick { if (!isDisabled) onClick() },
+        Modifier
+            .width(200.px)
+            .height(140.px)
+            .margin(10.px)
+            .borderRadius(12.px)
+            .backgroundColor(channelBackgroundColor)
+            .cursor(if (isDisabled) Cursor.NotAllowed else Cursor.Pointer)
+            .onClick { if (!isDisabled) onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Span(

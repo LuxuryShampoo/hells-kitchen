@@ -1,13 +1,17 @@
 package xyz.malefic.hell.pages
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.core.PageContext
 import com.varabyte.kobweb.core.layout.Layout
 import com.varabyte.kobweb.silk.style.toAttrs
-import kotlinx.browser.window
+import kotlinx.browser.localStorage
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
@@ -17,18 +21,16 @@ import xyz.malefic.hell.styles.WiiChannelStyles
 @Composable
 @Layout(".components.layouts.PageLayout")
 fun ChannelPage(ctx: PageContext) {
-    // Get the level parameter from the path, default to 1 if not provided
     val level = ctx.route.params["level"]?.toIntOrNull() ?: 1
+    val highestUnlockedLevel by remember {
+        mutableStateOf(localStorage.getItem("highestUnlockedLevel")?.toIntOrNull() ?: 1)
+    }
 
     Div(WiiChannelStyles.container.toAttrs()) {
-        // Background with cloud pattern
         Div(WiiChannelStyles.background.toAttrs()) {
-            // Main content area
             Div(WiiChannelStyles.content.toAttrs()) {
-                // Shopping bag icon and title section
                 Div(WiiChannelStyles.headerSection.toAttrs()) {
                     Div(WiiChannelStyles.iconContainer.toAttrs()) {
-                        // Wii shopping bags icon
                         Div(WiiChannelStyles.shoppingBag.toAttrs()) {
                             Text("Wii")
                         }
@@ -37,29 +39,32 @@ fun ChannelPage(ctx: PageContext) {
                         }
                     }
 
-                    // Title
                     Div(WiiChannelStyles.title.toAttrs()) {
                         Text("Chapter $level")
                     }
                 }
 
-                // Navigation arrows
-                Div(WiiChannelStyles.leftArrow.toAttrs()) {
+                Div(
+                    WiiChannelStyles.leftArrow.toAttrs {
+                        onClick { ctx.router.navigateTo("/channel/${(level - 1).coerceIn(1,highestUnlockedLevel)}") }
+                    },
+                ) {
                     Text("❮")
                 }
 
-                Div(WiiChannelStyles.rightArrow.toAttrs()) {
+                Div(
+                    WiiChannelStyles.rightArrow.toAttrs {
+                        onClick { ctx.router.navigateTo("/channel/${(level + 1).coerceIn(1,highestUnlockedLevel)}") }
+                    },
+                ) {
                     Text("❯")
                 }
             }
 
-            // Bottom navigation bar
             Div(WiiChannelStyles.bottomBar.toAttrs()) {
                 Button(
                     WiiChannelStyles.navButton.toAttrs {
-                        onClick {
-                            window.location.href = "/"
-                        }
+                        onClick { ctx.router.navigateTo("/") }
                     },
                 ) {
                     Text("Wii Menu")
@@ -67,9 +72,7 @@ fun ChannelPage(ctx: PageContext) {
 
                 Button(
                     WiiChannelStyles.navButton.toAttrs {
-                        onClick {
-                            window.location.href = "/kitchen$level"
-                        }
+                        onClick { ctx.router.navigateTo("/kitchen$level") }
                     },
                 ) {
                     Text("Start")

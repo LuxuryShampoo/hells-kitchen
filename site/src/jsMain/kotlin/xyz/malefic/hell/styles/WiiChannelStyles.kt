@@ -29,6 +29,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.left
 import com.varabyte.kobweb.compose.ui.modifiers.margin
 import com.varabyte.kobweb.compose.ui.modifiers.position
 import com.varabyte.kobweb.compose.ui.modifiers.right
+import com.varabyte.kobweb.compose.ui.modifiers.scale
 import com.varabyte.kobweb.compose.ui.modifiers.textAlign
 import com.varabyte.kobweb.compose.ui.modifiers.top
 import com.varabyte.kobweb.compose.ui.modifiers.transform
@@ -187,7 +188,12 @@ object WiiChannelStyles {
             }
 
             hover {
-                Modifier.color(Color.rgb(0, 150, 220))
+                Modifier
+                    .color(Color.rgb(0, 150, 220))
+                    .transform {
+                        translateY((-50).percent)
+                        scale(1.05)
+                    }
             }
         }
 
@@ -206,7 +212,12 @@ object WiiChannelStyles {
             }
 
             hover {
-                Modifier.color(Color.rgb(0, 150, 220))
+                Modifier
+                    .color(Color.rgb(0, 150, 220))
+                    .transform {
+                        translateY((-50).percent)
+                        scale(1.05)
+                    }
             }
         }
 
@@ -243,7 +254,7 @@ object WiiChannelStyles {
                     .fontWeight(600)
                     .color(Color.rgb(0, 150, 220))
                     .cursor(Cursor.Pointer)
-                    .transition(Transition.of(property = "all", duration = 200.ms))
+                    .transition(Transition.all(200.ms))
                     .display(DisplayStyle.Flex)
                     .alignItems(AlignItems.Center)
                     .justifyContent(JustifyContent.Center)

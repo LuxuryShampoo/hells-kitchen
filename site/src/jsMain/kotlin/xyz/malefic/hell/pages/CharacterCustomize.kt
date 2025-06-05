@@ -1,7 +1,7 @@
 package xyz.malefic.hell.pages
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -9,51 +9,41 @@ import androidx.compose.runtime.setValue
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.Overflow
-import com.varabyte.kobweb.compose.css.color
 import com.varabyte.kobweb.compose.css.cursor
-import com.varabyte.kobweb.compose.css.fontSize
 import com.varabyte.kobweb.compose.css.fontWeight
-import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.modifiers.alignItems
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
 import com.varabyte.kobweb.compose.ui.modifiers.border
 import com.varabyte.kobweb.compose.ui.modifiers.borderRadius
 import com.varabyte.kobweb.compose.ui.modifiers.color
-import com.varabyte.kobweb.compose.ui.modifiers.cursor
 import com.varabyte.kobweb.compose.ui.modifiers.display
 import com.varabyte.kobweb.compose.ui.modifiers.fillMaxSize
 import com.varabyte.kobweb.compose.ui.modifiers.flexDirection
-import com.varabyte.kobweb.compose.ui.modifiers.flexWrap
 import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
 import com.varabyte.kobweb.compose.ui.modifiers.gap
 import com.varabyte.kobweb.compose.ui.modifiers.height
 import com.varabyte.kobweb.compose.ui.modifiers.justifyContent
 import com.varabyte.kobweb.compose.ui.modifiers.margin
-import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.modifiers.overflow
 import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.size
 import com.varabyte.kobweb.compose.ui.modifiers.width
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
+import com.varabyte.kobweb.core.PageContext
 import kotlinx.browser.localStorage
 import kotlinx.browser.window
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.FlexWrap
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.LineStyle
 import org.jetbrains.compose.web.css.backgroundColor
-import org.jetbrains.compose.web.css.border
 import org.jetbrains.compose.web.css.borderRadius
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.fontSize
-import org.jetbrains.compose.web.css.fontWeight
+import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.px
@@ -61,35 +51,19 @@ import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.H2
-import org.jetbrains.compose.web.dom.Label
 import org.jetbrains.compose.web.dom.Text
+import xyz.malefic.hell.components.ColorSelector
+import xyz.malefic.hell.components.PlayerSwitchButton
+import xyz.malefic.hell.components.player.CharacterColors
+import xyz.malefic.hell.components.player.colorsMatch
+import xyz.malefic.hell.components.player.generateDifferentColors
+import xyz.malefic.hell.components.player.loadCharacterColors
+import xyz.malefic.hell.components.player.saveCharacterColors
 import org.jetbrains.compose.web.css.Color as CssColor
-
-data class CharacterColors(
-    val head: String = "#FFD590",
-    val body: String = "#FF0000",
-    val arms: String = "#FFD590",
-    val legs: String = "#0000FF",
-)
-
-@OptIn(DelicateCoroutinesApi::class)
-@Composable
-private fun LaunchedEffect(
-    key: Any,
-    block: suspend () -> Unit,
-) {
-    DisposableEffect(key) {
-        val job =
-            GlobalScope.launch {
-                block()
-            }
-        onDispose { job.cancel() }
-    }
-}
 
 @Page("/character-customize")
 @Composable
-fun CharacterCustomizePage() {
+fun CharacterCustomizePage(ctx: PageContext) {
     var player1Colors by remember { mutableStateOf(loadCharacterColors(1)) }
     var player2Colors by remember { mutableStateOf(loadCharacterColors(2)) }
     var hasSecondPlayer by remember { mutableStateOf(localStorage.getItem("has_second_player") == "true") }
@@ -110,8 +84,15 @@ fun CharacterCustomizePage() {
         if (activePlayer == 2 && !hasSecondPlayer) {
             hasSecondPlayer = true
             localStorage.setItem("has_second_player", "true")
-            if (player2Colors == CharacterColors(head = "#FFD590", body = "#FF0000", arms = "#FFD590", legs = "#0000FF")) {
-                player2Colors = generateDifferentColors(player1Colors) // Or use specific P2 defaults
+            if (player2Colors ==
+                CharacterColors(
+                    head = "#FFD590",
+                    body = "#FF0000",
+                    arms = "#FFD590",
+                    legs = "#0000FF",
+                )
+            ) {
+                player2Colors = generateDifferentColors(player1Colors)
                 saveCharacterColors(player2Colors, 2)
             }
         }
@@ -119,14 +100,14 @@ fun CharacterCustomizePage() {
 
     val colorOptions =
         listOf(
-            "#FF0000", // Red
-            "#00FF00", // Green
-            "#0000FF", // Blue
-            "#FFFF00", // Yellow
-            "#FF00FF", // Magenta
-            "#00FFFF", // Cyan
-            "#FFD590", // Skin tone
-            "#000000", // Black
+            "#FF0000",
+            "#00FF00",
+            "#0000FF",
+            "#FFFF00",
+            "#FF00FF",
+            "#00FFFF",
+            "#FFD590",
+            "#000000",
         )
 
     Div(
@@ -150,7 +131,6 @@ fun CharacterCustomizePage() {
             Text(if (hasSecondPlayer) "Player $activePlayer Customization" else "Customize Your Character")
         }
 
-        // Player selection buttons (if there are two players)
         if (hasSecondPlayer) {
             Div(
                 Modifier
@@ -159,12 +139,11 @@ fun CharacterCustomizePage() {
                     .margin(bottom = 20.px)
                     .toAttrs(),
             ) {
-                playerSwitchButton("Player 1", activePlayer == 1) { activePlayer = 1 }
-                playerSwitchButton("Player 2", activePlayer == 2) { activePlayer = 2 }
+                PlayerSwitchButton("Player 1", activePlayer == 1) { activePlayer = 1 }
+                PlayerSwitchButton("Player 2", activePlayer == 2) { activePlayer = 2 }
             }
         }
 
-        // Character Preview Section
         Div(
             Modifier
                 .display(DisplayStyle.Flex)
@@ -173,7 +152,6 @@ fun CharacterCustomizePage() {
                 .margin(bottom = 40.px)
                 .toAttrs(),
         ) {
-            // Character Preview
             Div(
                 Modifier
                     .width(200.px)
@@ -186,10 +164,8 @@ fun CharacterCustomizePage() {
                     .alignItems(AlignItems.Center)
                     .toAttrs(),
             ) {
-                // Current active character
                 val currentColors = if (activePlayer == 1) player1Colors else player2Colors
 
-                // Simple pixel art character
                 Div(
                     Modifier
                         .display(DisplayStyle.Flex)
@@ -197,7 +173,6 @@ fun CharacterCustomizePage() {
                         .alignItems(AlignItems.Center)
                         .toAttrs(),
                 ) {
-                    // Head
                     Div(
                         Modifier
                             .size(60.px)
@@ -206,7 +181,6 @@ fun CharacterCustomizePage() {
                             .toAttrs(),
                     )
 
-                    // Body
                     Div(
                         Modifier
                             .size(width = 80.px, height = 100.px)
@@ -215,7 +189,6 @@ fun CharacterCustomizePage() {
                             .margin(top = 5.px)
                             .toAttrs(),
                     ) {
-                        // Arms
                         Div(
                             Modifier
                                 .display(DisplayStyle.Flex)
@@ -224,7 +197,6 @@ fun CharacterCustomizePage() {
                                 .margin(leftRight = (-20).px, top = 15.px)
                                 .toAttrs(),
                         ) {
-                            // Left arm
                             Div(
                                 Modifier
                                     .size(width = 20.px, height = 70.px)
@@ -232,7 +204,6 @@ fun CharacterCustomizePage() {
                                     .borderRadius(5.px)
                                     .toAttrs(),
                             )
-                            // Right arm
                             Div(
                                 Modifier
                                     .size(width = 20.px, height = 70.px)
@@ -243,7 +214,6 @@ fun CharacterCustomizePage() {
                         }
                     }
 
-                    // Legs
                     Div(
                         Modifier
                             .display(DisplayStyle.Flex)
@@ -251,7 +221,6 @@ fun CharacterCustomizePage() {
                             .width(60.px)
                             .toAttrs(),
                     ) {
-                        // Left leg
                         Div(
                             Modifier
                                 .size(width = 25.px, height = 80.px)
@@ -259,7 +228,6 @@ fun CharacterCustomizePage() {
                                 .borderRadius(5.px)
                                 .toAttrs(),
                         )
-                        // Right leg
                         Div(
                             Modifier
                                 .size(width = 25.px, height = 80.px)
@@ -271,7 +239,6 @@ fun CharacterCustomizePage() {
                 }
             }
 
-            // Add Player Button (show only if there's no second player yet)
             if (!hasSecondPlayer) {
                 Button(
                     attrs = {
@@ -279,7 +246,6 @@ fun CharacterCustomizePage() {
                             hasSecondPlayer = true
                             localStorage.setItem("has_second_player", "true")
                             activePlayer = 2
-                            // Ensure player 2 has different colors
                             player2Colors = generateDifferentColors(player1Colors)
                             saveCharacterColors(player2Colors, 2)
                         }
@@ -300,7 +266,6 @@ fun CharacterCustomizePage() {
             }
         }
 
-        // Color Selection Area
         H2(
             Modifier
                 .color(CssColor.white)
@@ -313,8 +278,7 @@ fun CharacterCustomizePage() {
         val currentColors = if (activePlayer == 1) player1Colors else player2Colors
         val otherPlayerColors = if (activePlayer == 1) player2Colors else player1Colors
 
-        // Body Part Selectors
-        colorSelector("Head Color", currentColors.head, colorOptions) { newColor ->
+        ColorSelector("Head Color", currentColors.head, colorOptions) { newColor ->
             if (!hasSecondPlayer ||
                 !colorsMatch(
                     newColor,
@@ -339,7 +303,7 @@ fun CharacterCustomizePage() {
             }
         }
 
-        colorSelector("Body Color", currentColors.body, colorOptions) { newColor ->
+        ColorSelector("Body Color", currentColors.body, colorOptions) { newColor ->
             if (!hasSecondPlayer ||
                 !colorsMatch(
                     currentColors.head,
@@ -364,7 +328,7 @@ fun CharacterCustomizePage() {
             }
         }
 
-        colorSelector("Arms Color", currentColors.arms, colorOptions) { newColor ->
+        ColorSelector("Arms Color", currentColors.arms, colorOptions) { newColor ->
             if (!hasSecondPlayer ||
                 !colorsMatch(
                     currentColors.head,
@@ -389,7 +353,7 @@ fun CharacterCustomizePage() {
             }
         }
 
-        colorSelector("Legs Color", currentColors.legs, colorOptions) { newColor ->
+        ColorSelector("Legs Color", currentColors.legs, colorOptions) { newColor ->
             if (!hasSecondPlayer ||
                 !colorsMatch(
                     currentColors.head,
@@ -414,7 +378,6 @@ fun CharacterCustomizePage() {
             }
         }
 
-        // Control instructions
         if (hasSecondPlayer) {
             Div(
                 Modifier
@@ -432,27 +395,25 @@ fun CharacterCustomizePage() {
             }
         }
 
-        // Done Button
         Button(
             attrs = {
-                onClick { window.location.href = "/" }
+                onClick { ctx.router.navigateTo("/") }
                 style {
-                    property("padding", "12px 24px")
-                    property("background-color", "#4CAF50")
-                    property("color", "white")
+                    padding(12.px, 24.px)
+                    backgroundColor(CssColor("#4CAF50"))
+                    color(CssColor.white)
                     property("border", "none")
-                    property("border-radius", "4px")
-                    property("font-size", "16px")
-                    property("font-weight", "bold")
-                    property("cursor", "pointer")
-                    property("margin-top", "40px")
+                    borderRadius(4.px)
+                    fontSize(16.px)
+                    fontWeight(FontWeight.Bold)
+                    cursor(Cursor.Pointer)
+                    marginTop(40.px)
                 }
             },
         ) {
             Text("Done")
         }
 
-        // Remove Player 2 Button (only show when editing Player 2)
         if (hasSecondPlayer && activePlayer == 2) {
             Button(
                 attrs = {
@@ -462,15 +423,15 @@ fun CharacterCustomizePage() {
                         activePlayer = 1
                     }
                     style {
-                        property("padding", "12px 24px")
-                        property("background-color", "#e74c3c")
-                        property("color", "white")
+                        padding(12.px, 24.px)
+                        backgroundColor(CssColor("#e74c3c"))
+                        color(CssColor.white)
                         property("border", "none")
-                        property("border-radius", "4px")
-                        property("font-size", "16px")
-                        property("font-weight", "bold")
-                        property("cursor", "pointer")
-                        property("margin-top", "20px")
+                        borderRadius(4.px)
+                        fontSize(16.px)
+                        fontWeight(FontWeight.Bold)
+                        cursor(Cursor.Pointer)
+                        marginTop(20.px)
                     }
                 },
             ) {
@@ -478,141 +439,4 @@ fun CharacterCustomizePage() {
             }
         }
     }
-}
-
-@Composable
-private fun playerSwitchButton(
-    text: String,
-    isActive: Boolean,
-    onClick: () -> Unit,
-) {
-    Button(
-        attrs = {
-            onClick { onClick() }
-            style {
-                property("padding", "8px 16px")
-                property("background-color", if (isActive) "#4CAF50" else "#555")
-                property("color", "white")
-                property("border", "none")
-                property("border-radius", "4px")
-                property("font-size", "14px")
-                property("font-weight", if (isActive) "bold" else "normal")
-                property("cursor", "pointer")
-            }
-        },
-    ) {
-        Text(text)
-    }
-}
-
-@Composable
-private fun colorSelector(
-    label: String,
-    selectedColor: String,
-    colorOptions: List<String>,
-    onColorSelected: (String) -> Unit,
-) {
-    Div(
-        Modifier
-            .display(DisplayStyle.Flex)
-            .flexDirection(FlexDirection.Column)
-            .margin(bottom = 20.px)
-            .width(300.px)
-            .toAttrs(),
-    ) {
-        Label(
-            forId = null,
-            attrs =
-                Modifier
-                    .color(CssColor.white)
-                    .margin(bottom = 8.px)
-                    .toAttrs(),
-        ) {
-            Text(label)
-        }
-
-        Div(
-            Modifier
-                .display(DisplayStyle.Flex)
-                .flexWrap(FlexWrap.Wrap)
-                .gap(10.px)
-                .toAttrs(),
-        ) {
-            colorOptions.forEach { color ->
-                // Create a final color value to capture for the onClick
-                val colorForClick = color
-
-                Div(
-                    Modifier
-                        .size(40.px)
-                        .backgroundColor(CssColor(color))
-                        .cursor(Cursor.Pointer)
-                        .borderRadius(4.px)
-                        .border(
-                            width = if (color == selectedColor) 3.px else 1.px,
-                            style = LineStyle.Solid,
-                            color = if (color == selectedColor) CssColor.white else CssColor("#666"),
-                        ).onClick { onColorSelected(colorForClick) }
-                        .toAttrs(),
-                ) {}
-            }
-        }
-    }
-}
-
-private fun loadCharacterColors(playerNumber: Int = 1): CharacterColors {
-    val suffix = "_p$playerNumber"
-
-    val defaultHead = "#FFD590"
-    val defaultP1Body = "#FF0000"
-    val defaultP2Body = "#0000FF"
-    val defaultArms = "#FFD590"
-    val defaultLegs = "#0000FF"
-
-    val headColor = localStorage.getItem("character_head$suffix") ?: defaultHead
-    val bodyColor = localStorage.getItem("character_body$suffix") ?: if (playerNumber == 2) defaultP2Body else defaultP1Body
-    val armsColor = localStorage.getItem("character_arms$suffix") ?: defaultArms
-    val legsColor = localStorage.getItem("character_legs$suffix") ?: defaultLegs
-
-    return CharacterColors(headColor, bodyColor, armsColor, legsColor)
-}
-
-private fun saveCharacterColors(
-    colors: CharacterColors,
-    playerNumber: Int = 1,
-) {
-    val suffix = "_p$playerNumber"
-
-    localStorage.setItem("character_head$suffix", colors.head)
-    localStorage.setItem("character_body$suffix", colors.body)
-    localStorage.setItem("character_arms$suffix", colors.arms)
-    localStorage.setItem("character_legs$suffix", colors.legs)
-}
-
-private fun colorsMatch(
-    head1: String,
-    head2: String,
-    body1: String,
-    body2: String,
-    arms1: String,
-    arms2: String,
-    legs1: String,
-    legs2: String,
-): Boolean = head1 == head2 && body1 == body2 && arms1 == arms2 && legs1 == legs2
-
-private fun generateDifferentColors(player1Colors: CharacterColors): CharacterColors {
-    // Create a different color scheme for player 2
-    val colorOptions = listOf("#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFD590", "#000000")
-
-    // Use different colors than player 1
-    val bodyColor = colorOptions.firstOrNull { it != player1Colors.body } ?: "#00FF00"
-    val legsColor = colorOptions.firstOrNull { it != player1Colors.legs } ?: "#000000"
-
-    // Return a character with same skin tone but different clothes
-    return CharacterColors(
-        head = player1Colors.head,
-        body = bodyColor,
-        arms = player1Colors.arms,
-        legs = legsColor,
-    )
 }

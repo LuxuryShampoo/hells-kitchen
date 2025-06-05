@@ -12,6 +12,7 @@ import com.varabyte.kobweb.compose.ui.graphics.Colors
 import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
+import com.varabyte.kobweb.core.PageContext
 import com.varabyte.kobweb.core.layout.Layout
 import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
@@ -31,14 +32,20 @@ import kotlin.js.Date
 @Page
 @Composable
 @Layout(".components.layouts.PageLayout")
-fun HomePage() {
+fun HomePage(ctx: PageContext) {
     val currentTheme = LocalAppTheme.current
 
     var currentTime by remember { mutableStateOf("") }
     var currentDay by remember { mutableStateOf("") }
-    var highestUnlockedLevel by remember { mutableStateOf(1) }
+    var highestUnlockedLevel by remember {
+        mutableStateOf(localStorage.getItem("highestUnlockedLevel")?.toIntOrNull() ?: 1)
+    }
     var miiClicked by remember {
         mutableStateOf(localStorage.getItem("mii_clicked") == "true")
+    }
+
+    LaunchedEffect(highestUnlockedLevel) {
+        localStorage.setItem("highestUnlockedLevel", highestUnlockedLevel.toString())
     }
 
     LaunchedEffect(Unit) {
@@ -61,12 +68,12 @@ fun HomePage() {
                 WiiButton(
                     modifier = Modifier.backgroundColor(wiiButtonBackgroundColor),
                     isClicked = miiClicked,
-                    onClick = {
-                        miiClicked = true
-                        localStorage.setItem("mii_clicked", "true")
-                        window.location.href = "/character-customize?player=1" // Specify player 1
-                    },
-                )
+                    ctx,
+                ) {
+                    miiClicked = true
+                    localStorage.setItem("mii_clicked", "true")
+                    ctx.router.navigateTo("/character-customize?player=1")
+                }
             }
 
             Div(WiiHomeStyles.channelGrid.toAttrs()) {
@@ -79,43 +86,19 @@ fun HomePage() {
                                 Div(attrs = {
                                     title("Click the Mii to customize first")
                                 }) {
-                                    WiiChannel(
-                                        "Level $i",
-                                        "darkgray",
-                                    ) {}
+                                    WiiChannel("Level $i", true)
                                 }
                             }
                             i <= highestUnlockedLevel -> {
-                                WiiChannel(
-                                    "Chapter $i",
-                                    when (i) {
-                                        1, 8, 12 -> "blue"
-                                        2 -> "green"
-                                        3 -> "yellow"
-                                        4, 6, 10 -> "white"
-                                        5, 9 -> "red"
-                                        7, 11 -> "orange"
-                                        else -> "#5d5d5d"
-                                    },
-                                ) {
-                                    window.location.assign("/channel/$i")
+                                WiiChannel("Chapter $i") {
+                                    ctx.router.navigateTo("/channel/$i")
                                 }
                             }
                             i == highestUnlockedLevel + 1 -> {
-                                WiiChannel(
-                                    "Coming Soon!",
-                                    "darkgray",
-                                ) {
-                                    // No action for "Coming Soon!"
-                                }
+                                WiiChannel("Coming Soon!", true)
                             }
                             else -> {
-                                WiiChannel(
-                                    "", // No text for empty channels
-                                    "darkgray", // Use #5d5d5d for empty channels
-                                ) {
-                                    // No action for empty channels
-                                }
+                                WiiChannel("", true)
                             }
                         }
                     }
