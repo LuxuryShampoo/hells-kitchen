@@ -10,13 +10,11 @@ import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
-import com.varabyte.kobweb.compose.ui.modifiers.classNames
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.core.Page
 import com.varabyte.kobweb.core.PageContext
 import com.varabyte.kobweb.silk.style.toAttrs
 import com.varabyte.kobweb.silk.style.toModifier
-import com.varabyte.kobweb.silk.theme.name
 import kotlinx.browser.localStorage
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.DisplayStyle
@@ -30,8 +28,8 @@ import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text
+import xyz.malefic.hell.components.Pext
 import xyz.malefic.hell.components.player.KeyBindings
 import xyz.malefic.hell.components.player.Player
 import xyz.malefic.hell.components.player.rememberPlayerPosition
@@ -50,17 +48,21 @@ fun Kitchen1(ctx: PageContext) {
     val collisionObjects = remember { mutableListOf<CollisionObject>() }
     collisionObjects.clear()
 
-    val keyBindingsP1 = KeyBindings(up = "ArrowUp", down = "ArrowDown", left = "ArrowLeft", right = "ArrowRight")
     val characterPosition1 =
-        rememberPlayerPosition(collisionObjects, 400, 300, keyBindingsP1)
+        rememberPlayerPosition(
+            collisionObjects,
+            400,
+            300,
+            KeyBindings("ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"),
+        )
 
     val characterPosition2 =
-        if (hasSecondPlayer) {
-            val keyBindingsP2 = KeyBindings(up = "w", down = "s", left = "a", right = "d")
-            rememberPlayerPosition(collisionObjects, 300, 300, keyBindingsP2)
-        } else {
-            null
-        }
+        rememberPlayerPosition(
+            collisionObjects,
+            300,
+            300,
+            KeyBindings("w", "s", "a", "d"),
+        ).takeIf { hasSecondPlayer }
 
     LaunchedEffect(Unit) {
         updateDateTime { time, day ->
@@ -108,8 +110,8 @@ fun Kitchen1(ctx: PageContext) {
                                 height(100.percent)
                             }
                         }) {
-                            Div(Modifier.classNames(KitchenStyles.burner.name).toAttrs())
-                            Div(Modifier.classNames(KitchenStyles.burner.name).toAttrs())
+                            Div(KitchenStyles.burner.toAttrs())
+                            Div(KitchenStyles.burner.toAttrs())
                         }
                     }
 
@@ -121,7 +123,7 @@ fun Kitchen1(ctx: PageContext) {
                             height(100.percent)
                         }
                     }) {
-                        Div(Modifier.classNames(KitchenStyles.burnerTall.name).toAttrs())
+                        Div(KitchenStyles.burnerTall.toAttrs())
                     }
                     Burner()
                 }
@@ -133,40 +135,30 @@ fun Kitchen1(ctx: PageContext) {
             }
         }
 
-        Box(KitchenStyles.footer.toModifier()) {
-            P(
-                Modifier
-                    .classNames(KitchenStyles.instructions.name)
-                    .toAttrs(),
-            ) {
-                val instructionText =
-                    if (hasSecondPlayer) {
-                        "Use the arrow keys and WASD to move the Mii characters around the kitchen"
-                    } else {
-                        "Use arrow keys to move the Mii character around the kitchen"
-                    }
-                Text(instructionText)
-            }
+        KitchenFooter(
+            "Use arrow keys to move the Mii character around the kitchen".takeUnless { hasSecondPlayer }
+                ?: "Use the arrow keys and WASD to move the Mii character around the kitchen",
+            currentTime,
+            currentDay,
+        )
+    }
+}
 
-            Column(
-                Modifier.align(Alignment.CenterEnd),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                P(
-                    Modifier
-                        .classNames(KitchenStyles.clock.name)
-                        .toAttrs(),
-                ) {
-                    Text(currentTime)
-                }
-                P(
-                    Modifier
-                        .classNames(KitchenStyles.date.name)
-                        .toAttrs(),
-                ) {
-                    Text(currentDay)
-                }
-            }
+@Composable
+fun KitchenFooter(
+    instructionText: String,
+    currentTime: String,
+    currentDay: String,
+) {
+    Box(KitchenStyles.footer.toModifier()) {
+        Pext(instructionText, KitchenStyles.instructions)
+
+        Column(
+            Modifier.align(Alignment.CenterEnd),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Pext(currentTime, KitchenStyles.clock)
+            Pext(currentDay, KitchenStyles.date)
         }
     }
 }

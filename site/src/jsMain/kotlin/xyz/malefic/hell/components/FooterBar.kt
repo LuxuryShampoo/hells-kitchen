@@ -1,6 +1,7 @@
 package xyz.malefic.hell.components
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import co.touchlab.kermit.Logger
 import com.varabyte.kobweb.compose.css.FontWeight
 import com.varabyte.kobweb.compose.css.TextAlign
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
@@ -11,19 +12,24 @@ import com.varabyte.kobweb.compose.ui.Alignment
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Color
 import com.varabyte.kobweb.compose.ui.graphics.Colors
-import com.varabyte.kobweb.compose.ui.modifiers.*
+import com.varabyte.kobweb.compose.ui.modifiers.backgroundColor
+import com.varabyte.kobweb.compose.ui.modifiers.color
+import com.varabyte.kobweb.compose.ui.modifiers.fillMaxWidth
+import com.varabyte.kobweb.compose.ui.modifiers.fontSize
+import com.varabyte.kobweb.compose.ui.modifiers.fontWeight
+import com.varabyte.kobweb.compose.ui.modifiers.margin
+import com.varabyte.kobweb.compose.ui.modifiers.padding
 import com.varabyte.kobweb.compose.ui.modifiers.textAlign
-import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.style.toModifier
-import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.css.height
+import org.jetbrains.compose.web.css.marginRight
+import org.jetbrains.compose.web.css.px
+import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Img
-import org.jetbrains.compose.web.dom.P
-import org.jetbrains.compose.web.dom.Text
+import xyz.malefic.hell.services.WeatherService
 import xyz.malefic.hell.styles.WiiHomeStyles
 import xyz.malefic.hell.theme.AppTheme
 import xyz.malefic.hell.theme.LocalAppTheme
-import xyz.malefic.hell.services.WeatherService
-import xyz.malefic.hell.services.WeatherData
 
 @Composable
 fun FooterBar(
@@ -34,70 +40,61 @@ fun FooterBar(
     val weatherDataResult = WeatherService.weatherDataResult
     val isLoadingWeather = WeatherService.isLoadingWeather
 
-    val footerBackgroundColor = when (currentTheme) {
-        AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(200, 220, 255) // Light Sky Blueish for all day types
-        AppTheme.NIGHT -> Color.rgb(30, 40, 70)   // Dark Blue/Gray
-    }
+    val footerBackgroundColor =
+        when (currentTheme) {
+            AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(200, 220, 255)
+            AppTheme.NIGHT -> Color.rgb(30, 40, 70) // Dark Blue/Gray
+        }
 
-    val clockColor = when (currentTheme) {
-        AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(80, 80, 80) // Dark gray for all day types
-        AppTheme.NIGHT -> Colors.WhiteSmoke
-    }
-    val dateAndDetailColor = when (currentTheme) {
-        AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(100, 100, 100) // Dark gray for all day types
-        AppTheme.NIGHT -> Colors.WhiteSmoke
-    }
-    // Error color remains constant for now
+    val clockColor =
+        when (currentTheme) {
+            AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(80, 80, 80)
+            AppTheme.NIGHT -> Colors.WhiteSmoke
+        }
+    val dateAndDetailColor =
+        when (currentTheme) {
+            AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(100, 100, 100)
+            AppTheme.NIGHT -> Colors.WhiteSmoke
+        }
     val errorColor = Color.rgb(0xF0, 0x80, 0x80)
 
     Box(
-        modifier = WiiHomeStyles.footer.toModifier()
-            .fillMaxWidth()
-            .backgroundColor(footerBackgroundColor) // Apply themed background
-            .padding(leftRight = 10.px, topBottom = 5.px),
+        modifier =
+            WiiHomeStyles.footer
+                .toModifier()
+                .fillMaxWidth()
+                .backgroundColor(footerBackgroundColor)
+                .padding(leftRight = 10.px, topBottom = 5.px),
     ) {
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
-            P(
-                attrs = WiiHomeStyles.clock.toModifier()
-                    .color(clockColor) // Apply themed color
-                    .textAlign(TextAlign.Center)
-                    .toAttrs(),
-            ) {
-                Text(time)
+            Pext(time, WiiHomeStyles.clock) {
+                color(clockColor).textAlign(TextAlign.Center)
             }
-            P(
-                attrs = WiiHomeStyles.date.toModifier()
-                    .color(dateAndDetailColor) // Apply themed color
-                    .textAlign(TextAlign.Center)
-                    .toAttrs(),
-            ) {
-                Text(date)
+            Pext(date, WiiHomeStyles.date) {
+                color(dateAndDetailColor).textAlign(TextAlign.Center)
             }
         }
 
         Column(
-            modifier = Modifier.align(Alignment.CenterEnd)
+            Modifier
+                .align(Alignment.CenterEnd)
                 .margin(right = 20.px),
             horizontalAlignment = Alignment.End,
         ) {
             when {
                 isLoadingWeather -> {
-                    P(
-                        attrs = Modifier
-                            .color(dateAndDetailColor) // Apply themed color for loading text
-                            .fontSize(16.px)
-                            .margin(0.px)
-                            .toAttrs()
-                    ) {
-                        Text("Loading weather...")
+                    Pext("Loading weather...") {
+                        color(dateAndDetailColor)
+                        fontSize(16.px)
+                        margin(0.px)
                     }
                 }
                 weatherDataResult?.isSuccess == true -> {
-                    val data = weatherDataResult!!.getOrNull()!!
+                    val data = weatherDataResult.getOrNull()!!
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Img(src = data.iconUrl, attrs = {
                             style {
@@ -106,40 +103,28 @@ fun FooterBar(
                                 marginRight(8.px)
                             }
                         })
-                        Column { 
-                            P(
-                                attrs = Modifier
-                                    .color(clockColor) // Themed color for temperature (like clock)
-                                    .fontSize(30.px)
-                                    .fontWeight(FontWeight.Bold)
-                                    .margin(0.px)
-                                    .toAttrs(),
-                            ) {
-                                Text("${data.temperature}°C")
+                        Column {
+                            Pext("${data.temperature}°C") {
+                                color(clockColor)
+                                fontSize(30.px)
+                                fontWeight(FontWeight.Bold)
+                                margin(0.px)
                             }
-                            P(
-                                attrs = Modifier
-                                    .color(dateAndDetailColor) // Themed color for description
-                                    .fontSize(20.px)
-                                    .margin(top = 0.px, bottom = 0.px)
-                                    .toAttrs(),
-                            ) {
-                                Text(data.description)
+                            Pext(data.description) {
+                                color(dateAndDetailColor)
+                                fontSize(16.px)
+                                margin(0.px)
                             }
                         }
                     }
                 }
                 weatherDataResult?.isFailure == true -> {
-                    P(
-                        attrs = Modifier
-                            .color(errorColor) // Error color remains constant
-                            .fontSize(16.px)
-                            .margin(0.px)
-                            .toAttrs(),
-                    ) {
-                        Text("Weather unavailable")
+                    Pext("Weather unavailable") {
+                        color(errorColor)
+                        fontSize(16.px)
+                        margin(0.px)
                     }
-                    console.error("[FooterBar] Weather fetch failed (from service): ${weatherDataResult.exceptionOrNull()?.message}")
+                    Logger.withTag("FooterBar").e("Weather fetch failed (from service): ${weatherDataResult.exceptionOrNull()?.message}")
                 }
             }
         }

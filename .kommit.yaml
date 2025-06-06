@@ -9,8 +9,8 @@ scopes:
   all:
     - ui
     - server
-    - move
-    - docs
+    - movement
+    - kitchen
 
 options:
   allowBreakingChanges:
