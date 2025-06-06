@@ -18,16 +18,15 @@ import com.varabyte.kobweb.silk.components.layout.SimpleGrid
 import com.varabyte.kobweb.silk.components.layout.numColumns
 import com.varabyte.kobweb.silk.style.toAttrs
 import kotlinx.browser.localStorage
-import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.Div
 import xyz.malefic.hell.components.FooterBar
 import xyz.malefic.hell.components.OptionsButton
 import xyz.malefic.hell.components.WiiButton
 import xyz.malefic.hell.components.WiiChannel
+import xyz.malefic.hell.services.updateDateTime
 import xyz.malefic.hell.styles.WiiHomeStyles
 import xyz.malefic.hell.theme.AppTheme
 import xyz.malefic.hell.theme.LocalAppTheme
-import kotlin.js.Date
 
 @Page
 @Composable
@@ -84,7 +83,7 @@ fun HomePage(ctx: PageContext) {
                         when {
                             i == 1 && !miiClicked -> {
                                 Div(attrs = {
-                                    title("Click the Mii to customize first")
+                                    title("Click Mii to customize first")
                                 }) {
                                     WiiChannel("Level $i", true)
                                 }
@@ -112,24 +111,4 @@ fun HomePage(ctx: PageContext) {
 
         FooterBar(currentTime, currentDay)
     }
-}
-
-fun updateDateTime(update: (String, String) -> Unit) {
-    val updateTime = {
-        val date = Date()
-        val hours = date.getHours().toString().padStart(2, '0')
-        val minutes = date.getMinutes().toString().padStart(2, '0')
-        val time = "$hours:$minutes"
-
-        val days = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-        val dayOfWeek = days[date.getDay()]
-        val month = (date.getMonth() + 1).toString()
-        val dayOfMonth = date.getDate().toString()
-        val day = "$dayOfWeek $month/$dayOfMonth"
-
-        update(time, day)
-    }
-
-    updateTime()
-    window.setInterval(updateTime, 60000)
 }

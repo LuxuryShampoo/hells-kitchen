@@ -72,7 +72,7 @@ fun ChannelPage(ctx: PageContext) {
 
                 Button(
                     WiiChannelStyles.navButton.toAttrs {
-                        onClick { ctx.router.navigateTo("/kitchen$level") }
+                        onClick { ctx.router.navigateTo("/kitchen/$level") }
                     },
                 ) {
                     Text("Start")

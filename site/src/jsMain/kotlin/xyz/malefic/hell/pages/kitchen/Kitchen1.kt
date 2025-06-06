@@ -1,4 +1,4 @@
-package xyz.malefic.hell.pages
+package xyz.malefic.hell.pages.kitchen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,11 +35,12 @@ import org.jetbrains.compose.web.dom.Text
 import xyz.malefic.hell.components.player.KeyBindings
 import xyz.malefic.hell.components.player.Player
 import xyz.malefic.hell.components.player.rememberPlayerPosition
+import xyz.malefic.hell.services.updateDateTime
 import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
 import xyz.malefic.hell.util.collide
 
-@Page("/kitchen1")
+@Page("1")
 @Composable
 fun Kitchen1(ctx: PageContext) {
     var currentTime by remember { mutableStateOf("") }
