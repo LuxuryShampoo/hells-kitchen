@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import co.touchlab.kermit.Logger
 import com.varabyte.kobweb.compose.foundation.layout.Box
 import com.varabyte.kobweb.compose.foundation.layout.Column
 import com.varabyte.kobweb.compose.ui.Alignment
@@ -16,16 +17,20 @@ import com.varabyte.kobweb.core.PageContext
 import com.varabyte.kobweb.silk.style.toAttrs
 import com.varabyte.kobweb.silk.style.toModifier
 import kotlinx.browser.localStorage
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.web.css.AlignItems
+import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
+import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.percent
+import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
@@ -33,9 +38,14 @@ import xyz.malefic.hell.components.Pext
 import xyz.malefic.hell.components.player.KeyBindings
 import xyz.malefic.hell.components.player.Player
 import xyz.malefic.hell.components.player.rememberPlayerPosition
+import xyz.malefic.hell.orders.Order
+import xyz.malefic.hell.orders.OrderItem
+import xyz.malefic.hell.orders.OrderView
+import xyz.malefic.hell.orders.RecipeAction
 import xyz.malefic.hell.services.updateDateTime
 import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
+import xyz.malefic.hell.util.Quadruple
 import xyz.malefic.hell.util.collide
 
 @Page("1")
@@ -45,8 +55,9 @@ fun Kitchen1(ctx: PageContext) {
     var currentDay by remember { mutableStateOf("") }
     val hasSecondPlayer by remember { mutableStateOf(localStorage.getItem("has_second_player") == "true") }
 
-    val collisionObjects = remember { mutableListOf<CollisionObject>() }
-    collisionObjects.clear()
+    val collisionObjects = mutableListOf<CollisionObject>()
+
+    CollisionInit(collisionObjects)
 
     val characterPosition1 =
         rememberPlayerPosition(
@@ -71,6 +82,100 @@ fun Kitchen1(ctx: PageContext) {
         }
     }
 
+    val sampleOrder =
+        remember {
+            Order(
+                "Order#1",
+                listOf(
+                    OrderItem(
+                        "Salad",
+                        listOf(
+                            RecipeAction("Chop", "ChoppingBoard", 3),
+                            RecipeAction("Cook", "Stove", 5),
+                        ),
+                    ),
+                    OrderItem(
+                        "Soup",
+                        listOf(
+                            RecipeAction("Chop", "ChoppingBoard", 2),
+                            RecipeAction("Cook", "Stove", 4),
+                        ),
+                    ),
+                ),
+            )
+        }
+
+    var completedActions by remember { mutableStateOf(mapOf<String, Int>()) }
+    var actionInProgress by remember { mutableStateOf<Pair<String, Int>?>(null) }
+    var actionTimer by remember { mutableStateOf(0) }
+
+    fun getStationCollisionObject(station: String): CollisionObject? =
+        when (station) {
+            "ChoppingBoard" -> collisionObjects.getOrNull(0)
+            "Stove" -> collisionObjects.getOrNull(1)
+            else -> null
+        }
+
+    fun isColliding(
+        pos: Pair<Int, Int>,
+        rect: Quadruple<Int, Int, Int, Int>,
+    ): Boolean {
+        val (x, y) = pos
+        val (rx, ry, rw, rh) = rect
+        return x in rx..(rx + rw) && y in ry..(ry + rh)
+    }
+
+    fun getPlayerPos(): Pair<Int, Int> = characterPosition1.x to characterPosition1.y
+
+    fun canStartAction(action: RecipeAction): Boolean {
+        val logger = Logger.withTag("Kitchen1")
+        val stationObj = getStationCollisionObject(action.station)
+        logger.d {
+            "canStartAction: action=${action.name}, station=${action.station}, player=(${characterPosition1.x},${characterPosition1.y}), stationObj=$stationObj"
+        }
+        if (stationObj == null) {
+            logger.w { "canStartAction: No collision object found for station: ${action.station}" }
+            return false
+        }
+        val pxRange = 32
+        val playerCenterX = characterPosition1.x + 25 // Player width is 50
+        val playerCenterY = characterPosition1.y + 35 // Player height is 70
+        val stationCenterX = stationObj.x + stationObj.width / 2
+        val stationCenterY = stationObj.y + stationObj.height / 2
+        val dx = playerCenterX - stationCenterX
+        val dy = playerCenterY - stationCenterY
+        val distance = kotlin.math.sqrt((dx * dx + dy * dy).toDouble())
+        logger.d {
+            "canStartAction: playerCenter=($playerCenterX,$playerCenterY), stationCenter=($stationCenterX,$stationCenterY), distance=$distance, pxRange=$pxRange, withinRange=${distance <= pxRange}"
+        }
+        return distance <= pxRange
+    }
+
+    fun startAction(
+        item: OrderItem,
+        action: RecipeAction,
+    ) {
+        if (!canStartAction(action)) return
+        val idx = item.actions.indexOf(action)
+        if (actionInProgress == null) {
+            actionInProgress = item.name to idx
+            actionTimer = action.durationSeconds
+        }
+    }
+
+    LaunchedEffect(actionInProgress) {
+        val (itemName, _) = actionInProgress ?: return@LaunchedEffect
+        while (actionTimer > 0) {
+            delay(1000)
+            actionTimer--
+        }
+        completedActions =
+            completedActions.toMutableMap().apply {
+                put(itemName, (get(itemName) ?: 0) + 1)
+            }
+        actionInProgress = null
+    }
+
     Div(KitchenStyles.container.toAttrs()) {
         Button(
             KitchenStyles.leave.toAttrs {
@@ -82,56 +187,40 @@ fun Kitchen1(ctx: PageContext) {
             Text("Leave")
         }
 
-        Div(KitchenStyles.content.toAttrs()) {
-            Div(KitchenStyles.kitchenContainer.toAttrs()) {
-                Div(KitchenStyles.floor.toAttrs())
+        Div({
+            style {
+                display(DisplayStyle.Flex)
+                flexDirection(FlexDirection.Row)
+                alignItems("flex-start")
+                width(100.percent)
+            }
+        }) {
+            OrderView(
+                order = sampleOrder,
+                completedActions = completedActions,
+                onActionStart = ::startAction,
+                canStartAction = ::canStartAction,
+            )
 
-                Div(
-                    KitchenStyles.counter
-                        .collide(100, 100, 200, 100, collisionObjects)
-                        .toAttrs(),
-                ) {
-                    Div(KitchenStyles.cuttingBoard.toAttrs())
-                }
+            Div(KitchenStyles.content.toAttrs()) {
+                Div(KitchenStyles.kitchenContainer.toAttrs()) {
+                    Div(KitchenStyles.floor.toAttrs())
 
-                Div(
-                    KitchenStyles.stove
-                        .collide(500, 100, 180, 120, collisionObjects)
-                        .toAttrs(),
-                ) {
-                    @Composable
-                    fun Burner() {
-                        Div({
-                            style {
-                                display(DisplayStyle.Flex)
-                                flexDirection(FlexDirection.Column)
-                                justifyContent(JustifyContent.Center)
-                                alignItems(AlignItems.Center)
-                                height(100.percent)
-                            }
-                        }) {
-                            Div(KitchenStyles.burner.toAttrs())
-                            Div(KitchenStyles.burner.toAttrs())
-                        }
+                    Counter(collisionObjects)
+                    Stove(collisionObjects)
+
+                    Player(characterPosition1, playerId = 1)
+                    characterPosition2?.let {
+                        Player(characterPosition2, playerId = 2)
                     }
-
-                    Burner()
-                    Div({
-                        style {
-                            display(DisplayStyle.Flex)
-                            alignItems(AlignItems.Center)
-                            height(100.percent)
-                        }
-                    }) {
-                        Div(KitchenStyles.burnerTall.toAttrs())
-                    }
-                    Burner()
                 }
+            }
+        }
 
-                Player(characterPosition1, playerId = 1)
-                characterPosition2?.let {
-                    Player(characterPosition2, playerId = 2)
-                }
+        actionInProgress?.let { (itemName, actionIdx) ->
+            val action = sampleOrder.items.first { it.name == itemName }.actions[actionIdx]
+            Div({ style { color(Color.red) } }) {
+                Text("${action.name} in progress: $actionTimer s left")
             }
         }
 
@@ -141,6 +230,66 @@ fun Kitchen1(ctx: PageContext) {
             currentTime,
             currentDay,
         )
+    }
+}
+
+@Composable
+private fun CollisionInit(collisionObjects: MutableList<CollisionObject>) {
+    Div({ style { display(DisplayStyle.None) } }) {
+        Counter(collisionObjects)
+        Stove(collisionObjects)
+    }
+}
+
+@Composable
+private fun Counter(collisionObjects: MutableList<CollisionObject>) {
+    Div(
+        KitchenStyles.counter
+            .collide(100, 100, 200, 100, collisionObjects)
+            .toAttrs(),
+    ) {
+        Div(KitchenStyles.cuttingBoard.toAttrs())
+    }
+}
+
+@Composable
+private fun Stove(collisionObjects: MutableList<CollisionObject>) =
+    Div(
+        KitchenStyles.stove
+            .collide(500, 100, 180, 120, collisionObjects)
+            .toAttrs(),
+    ) {
+        DoubleBurner()
+        TallBurner()
+        DoubleBurner()
+    }
+
+@Composable
+fun DoubleBurner() {
+    Div({
+        style {
+            display(DisplayStyle.Flex)
+            flexDirection(FlexDirection.Column)
+            justifyContent(JustifyContent.Center)
+            alignItems(AlignItems.Center)
+            height(100.percent)
+        }
+    }) {
+        Div(KitchenStyles.burner.toAttrs())
+        Div(KitchenStyles.burner.toAttrs())
+    }
+}
+
+@Composable
+private fun TallBurner() {
+    Div({
+        style {
+            display(DisplayStyle.Flex)
+            alignItems(AlignItems.Center)
+            height(100.percent)
+        }
+    }) {
+        Div(KitchenStyles.burnerTall.toAttrs())
     }
 }
 

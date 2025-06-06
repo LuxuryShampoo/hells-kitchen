@@ -22,9 +22,7 @@ object WeatherService {
     private val logger = Logger.withTag("WeatherService")
 
     var weatherDataResult by mutableStateOf<Result<WeatherData>?>(null)
-        private set
     var isLoadingWeather by mutableStateOf(false)
-        private set
 
     fun initialFetch() {
         if (weatherDataResult == null && !isLoadingWeather) {
@@ -147,12 +145,7 @@ object WeatherService {
         var iconUrlStr = iconFromConditionDynamic.toString()
         if (iconUrlStr.startsWith("//")) iconUrlStr = "https:$iconUrlStr"
 
-        val cloudInt: Int? =
-            try {
-                cloudDynamic?.unsafeCast<Int>()
-            } catch (e: Exception) {
-                null
-            }
+        val cloudInt: Int? = runCatching { cloudDynamic?.unsafeCast<Int>() }.getOrNull()
 
         logger.d("Parsed weather - Temp: $tempStr, Desc: $descriptionStr, Icon: $iconUrlStr, Cloud: $cloudInt")
         return WeatherData(tempStr, descriptionStr, iconUrlStr, cloudInt)

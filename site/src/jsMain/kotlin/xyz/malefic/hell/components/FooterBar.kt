@@ -43,9 +43,8 @@ fun FooterBar(
     val footerBackgroundColor =
         when (currentTheme) {
             AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(200, 220, 255)
-            AppTheme.NIGHT -> Color.rgb(30, 40, 70) // Dark Blue/Gray
+            AppTheme.NIGHT -> Color.rgb(30, 40, 70)
         }
-
     val clockColor =
         when (currentTheme) {
             AppTheme.DAY_SUNNY, AppTheme.DAY_CLOUDY -> Color.rgb(80, 80, 80)
@@ -59,23 +58,24 @@ fun FooterBar(
     val errorColor = Color.rgb(0xF0, 0x80, 0x80)
 
     Box(
-        modifier =
-            WiiHomeStyles.footer
-                .toModifier()
-                .fillMaxWidth()
-                .backgroundColor(footerBackgroundColor)
-                .padding(leftRight = 10.px, topBottom = 5.px),
+        WiiHomeStyles.footer
+            .toModifier()
+            .fillMaxWidth()
+            .backgroundColor(footerBackgroundColor)
+            .padding(leftRight = 10.px, topBottom = 5.px),
     ) {
         Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+            Modifier.align(Alignment.Center),
+            Arrangement.Center,
+            Alignment.CenterHorizontally,
         ) {
             Pext(time, WiiHomeStyles.clock) {
-                color(clockColor).textAlign(TextAlign.Center)
+                color(clockColor)
+                textAlign(TextAlign.Center)
             }
             Pext(date, WiiHomeStyles.date) {
-                color(dateAndDetailColor).textAlign(TextAlign.Center)
+                color(dateAndDetailColor)
+                textAlign(TextAlign.Center)
             }
         }
 

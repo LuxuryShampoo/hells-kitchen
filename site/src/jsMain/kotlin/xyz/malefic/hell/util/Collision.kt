@@ -45,18 +45,24 @@ fun checkCollisions(
     position: PlayerPosition,
     collisionObjects: List<CollisionObject>,
 ): Boolean {
-    val newX = position.x.coerceIn(0, 800 - 50)
-    val newY = position.y.coerceIn(0, 500 - 70)
+    val playerLeft = position.x.coerceIn(0, 800 - 50)
+    val playerTop = position.y.coerceIn(0, 500 - 70)
+    val playerRight = playerLeft + 50
+    val playerBottom = playerTop + 70
 
     for (obj in collisionObjects) {
-        if (newX < obj.x + obj.width &&
-            newX + 50 > obj.x &&
-            newY < obj.y + obj.height &&
-            newY + 70 > obj.y
+        val objLeft = obj.x
+        val objTop = obj.y
+        val objRight = obj.x + obj.width
+        val objBottom = obj.y + obj.height
+
+        if (playerLeft < objRight &&
+            playerRight > objLeft &&
+            playerTop < objBottom &&
+            playerBottom > objTop
         ) {
             return true
         }
     }
-
-    return newX != position.x || newY != position.y
+    return false
 }

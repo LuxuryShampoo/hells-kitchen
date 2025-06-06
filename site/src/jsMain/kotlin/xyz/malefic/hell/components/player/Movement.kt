@@ -148,16 +148,53 @@ fun rememberPlayerPosition(
     DisposableEffect(Unit) {
         val intervalId =
             window.setInterval({
-                val newPosition = calculateNewPosition(playerPosition.value, keysPressed, keyBindings)
+                val current = playerPosition.value
+                val keys = keysPressed
+                var newX = current.x
+                var newY = current.y
+                var direction = current.direction
+                var isMoving = false
 
-                val hasCollision = checkCollisions(newPosition, collisionObjects)
-
-                if (!hasCollision) {
-                    val boundedX = newPosition.x.coerceIn(0, 800 - 50)
-                    val boundedY = newPosition.y.coerceIn(0, 500 - 70)
-
-                    playerPosition.value = newPosition.copy(x = boundedX, y = boundedY)
+                if (keys.contains(keyBindings.up)) {
+                    val tryY = newY - 5
+                    val testPos = current.copy(y = tryY)
+                    if (!checkCollisions(testPos, collisionObjects)) {
+                        newY = tryY
+                    }
+                    direction = Direction.UP
+                    isMoving = true
                 }
+                if (keys.contains(keyBindings.down)) {
+                    val tryY = newY + 5
+                    val testPos = current.copy(y = tryY)
+                    if (!checkCollisions(testPos, collisionObjects)) {
+                        newY = tryY
+                    }
+                    direction = Direction.DOWN
+                    isMoving = true
+                }
+                if (keys.contains(keyBindings.left)) {
+                    val tryX = newX - 5
+                    val testPos = current.copy(x = tryX)
+                    if (!checkCollisions(testPos, collisionObjects)) {
+                        newX = tryX
+                    }
+                    direction = Direction.LEFT
+                    isMoving = true
+                }
+                if (keys.contains(keyBindings.right)) {
+                    val tryX = newX + 5
+                    val testPos = current.copy(x = tryX)
+                    if (!checkCollisions(testPos, collisionObjects)) {
+                        newX = tryX
+                    }
+                    direction = Direction.RIGHT
+                    isMoving = true
+                }
+
+                val boundedX = newX.coerceIn(0, 800 - 50)
+                val boundedY = newY.coerceIn(0, 500 - 70)
+                playerPosition.value = PlayerPosition(boundedX, boundedY, isMoving, direction)
             }, 16)
 
         onDispose {
