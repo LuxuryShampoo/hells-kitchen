@@ -1,4 +1,4 @@
-package xyz.malefic.hell.orders
+package xyz.malefic.hell.util
 
 /**
  * Represents an action in a recipe, which is part of an order item.

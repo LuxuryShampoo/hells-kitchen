@@ -38,17 +38,19 @@ import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Text
 import xyz.malefic.hell.components.Pext
+import xyz.malefic.hell.components.orders.OrderView
 import xyz.malefic.hell.components.player.KeyBindings
 import xyz.malefic.hell.components.player.Player
 import xyz.malefic.hell.components.player.rememberPlayerPosition
-import xyz.malefic.hell.orders.Order
-import xyz.malefic.hell.orders.OrderItem
-import xyz.malefic.hell.orders.OrderView
-import xyz.malefic.hell.orders.RecipeAction
 import xyz.malefic.hell.services.updateDateTime
 import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
+import xyz.malefic.hell.util.Order
+import xyz.malefic.hell.util.OrderItem
 import xyz.malefic.hell.util.Quadruple
+import xyz.malefic.hell.util.RecipeAction
+import xyz.malefic.hell.util.Recipes.salad
+import xyz.malefic.hell.util.Recipes.soup
 import xyz.malefic.hell.util.collide
 import kotlin.math.sqrt
 
@@ -91,20 +93,8 @@ fun Kitchen1(ctx: PageContext) {
             Order(
                 "Order#1",
                 listOf(
-                    OrderItem(
-                        "Salad",
-                        listOf(
-                            RecipeAction("Chop", "ChoppingBoard", 3),
-                            RecipeAction("Cook", "Stove", 5),
-                        ),
-                    ),
-                    OrderItem(
-                        "Soup",
-                        listOf(
-                            RecipeAction("Chop", "ChoppingBoard", 2),
-                            RecipeAction("Cook", "Stove", 4),
-                        ),
-                    ),
+                    salad,
+                    soup,
                 ),
             )
         }
@@ -115,7 +105,7 @@ fun Kitchen1(ctx: PageContext) {
 
     fun getStationCollisionObject(station: String): CollisionObject? =
         when (station) {
-            "ChoppingBoard" -> collisionObjects.getOrNull(0)
+            "Counter" -> collisionObjects.getOrNull(0)
             "Stove" -> collisionObjects.getOrNull(1)
             else -> null
         }
@@ -144,12 +134,9 @@ fun Kitchen1(ctx: PageContext) {
             logger.w { "canStartAction: No collision object found for station: ${action.station}" }
             return false
         }
-        val idx = item.actions.indexOf(action)
+        val idx = item.actions.indexOf(action) + 1
         return when {
-            completedActions[item.name] != idx - 1 && idx != 0 -> {
-                false
-            }
-            else -> {
+            completedActions[item.name] == idx - 1 || idx == 1 -> {
                 val pxRange = 200
                 val playerCenterX = characterPosition1.x + 25
                 val playerCenterY = characterPosition1.y + 35
@@ -162,6 +149,15 @@ fun Kitchen1(ctx: PageContext) {
                     "canStartAction: playerCenter=($playerCenterX,$playerCenterY), stationCenter=($stationCenterX,$stationCenterY), distance=$distance, pxRange=$pxRange, withinRange=${distance <= pxRange}"
                 }
                 distance <= pxRange
+            }
+            else -> {
+                logger.d {
+                    "canStartAction: Action not ready, completedActions=${completedActions[item.name]}, idx=$idx, and issue is ${
+                        "idx not right".takeIf {
+                            completedActions[item.name] != idx
+                        } ?: "not first action" }"
+                }
+                false
             }
         }
     }
