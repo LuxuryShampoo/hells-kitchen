@@ -29,7 +29,10 @@ import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.marginLeft
+import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.percent
+import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
@@ -47,6 +50,7 @@ import xyz.malefic.hell.styles.KitchenStyles
 import xyz.malefic.hell.util.CollisionObject
 import xyz.malefic.hell.util.Quadruple
 import xyz.malefic.hell.util.collide
+import kotlin.math.sqrt
 
 @Page("1")
 @Composable
@@ -127,7 +131,10 @@ fun Kitchen1(ctx: PageContext) {
 
     fun getPlayerPos(): Pair<Int, Int> = characterPosition1.x to characterPosition1.y
 
-    fun canStartAction(action: RecipeAction): Boolean {
+    fun canStartAction(
+        action: RecipeAction,
+        item: OrderItem,
+    ): Boolean {
         val logger = Logger.withTag("Kitchen1")
         val stationObj = getStationCollisionObject(action.station)
         logger.d {
@@ -137,25 +144,33 @@ fun Kitchen1(ctx: PageContext) {
             logger.w { "canStartAction: No collision object found for station: ${action.station}" }
             return false
         }
-        val pxRange = 32
-        val playerCenterX = characterPosition1.x + 25 // Player width is 50
-        val playerCenterY = characterPosition1.y + 35 // Player height is 70
-        val stationCenterX = stationObj.x + stationObj.width / 2
-        val stationCenterY = stationObj.y + stationObj.height / 2
-        val dx = playerCenterX - stationCenterX
-        val dy = playerCenterY - stationCenterY
-        val distance = kotlin.math.sqrt((dx * dx + dy * dy).toDouble())
-        logger.d {
-            "canStartAction: playerCenter=($playerCenterX,$playerCenterY), stationCenter=($stationCenterX,$stationCenterY), distance=$distance, pxRange=$pxRange, withinRange=${distance <= pxRange}"
+        val idx = item.actions.indexOf(action)
+        return when {
+            completedActions[item.name] != idx - 1 && idx != 0 -> {
+                false
+            }
+            else -> {
+                val pxRange = 200
+                val playerCenterX = characterPosition1.x + 25
+                val playerCenterY = characterPosition1.y + 35
+                val stationCenterX = stationObj.x + stationObj.width / 2
+                val stationCenterY = stationObj.y + stationObj.height / 2
+                val dx = playerCenterX - stationCenterX
+                val dy = playerCenterY - stationCenterY
+                val distance = sqrt((dx * dx + dy * dy).toDouble())
+                logger.d {
+                    "canStartAction: playerCenter=($playerCenterX,$playerCenterY), stationCenter=($stationCenterX,$stationCenterY), distance=$distance, pxRange=$pxRange, withinRange=${distance <= pxRange}"
+                }
+                distance <= pxRange
+            }
         }
-        return distance <= pxRange
     }
 
     fun startAction(
         item: OrderItem,
         action: RecipeAction,
     ) {
-        if (!canStartAction(action)) return
+        if (!canStartAction(action, item)) return
         val idx = item.actions.indexOf(action)
         if (actionInProgress == null) {
             actionInProgress = item.name to idx
@@ -200,7 +215,10 @@ fun Kitchen1(ctx: PageContext) {
                 completedActions = completedActions,
                 onActionStart = ::startAction,
                 canStartAction = ::canStartAction,
-            )
+            ) {
+                marginTop(175.px)
+                marginLeft(200.px)
+            }
 
             Div(KitchenStyles.content.toAttrs()) {
                 Div(KitchenStyles.kitchenContainer.toAttrs()) {

@@ -6,10 +6,12 @@ import com.varabyte.kobweb.compose.css.borderBottom
 import com.varabyte.kobweb.compose.css.boxShadow
 import com.varabyte.kobweb.compose.css.color
 import com.varabyte.kobweb.compose.css.fontWeight
+import com.varabyte.kobweb.compose.css.margin
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.LineStyle
+import org.jetbrains.compose.web.css.StyleScope
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.border
@@ -49,7 +51,8 @@ fun OrderView(
     order: Order,
     completedActions: Map<String, Int>,
     onActionStart: (item: OrderItem, action: RecipeAction) -> Unit,
-    canStartAction: (action: RecipeAction) -> Boolean = { true },
+    canStartAction: (action: RecipeAction, item: OrderItem) -> Boolean,
+    extraStyle: StyleScope.() -> Unit = {},
 ) {
     Div({
         style {
@@ -66,6 +69,7 @@ fun OrderView(
             minWidth(220.px)
             maxWidth(260.px)
             margin(16.px)
+            extraStyle()
         }
     }) {
         H3({
@@ -101,7 +105,7 @@ fun OrderView(
                         }
                     }) {
                         Button(attrs = {
-                            if (isCompleted || !canStartAction(action)) disabled()
+                            if (isCompleted || !canStartAction(action, item)) disabled()
                             style {
                                 fontFamily("monospace")
                                 fontSize(0.95.em)
