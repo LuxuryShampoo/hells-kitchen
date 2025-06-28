@@ -22,13 +22,13 @@ import xyz.malefic.hell.services.WeatherService
 import xyz.malefic.hell.styles.WiiHomeStyles
 import xyz.malefic.hell.theme.AppTheme
 import xyz.malefic.hell.theme.LocalAppTheme
-import xyz.malefic.hell.theme.rememberCurrentAppTheme
+import xyz.malefic.hell.theme.ThemeManager
 import kotlin.js.Date
 
 @App
 @Composable
 fun AppEntry(content: @Composable () -> Unit) {
-    val currentTheme = rememberCurrentAppTheme()
+    val currentTheme = ThemeManager.getCurrentTheme()
     var lastFetchedHour by remember { mutableStateOf(-1) }
 
     LaunchedEffect(Unit) {

@@ -1,6 +1,10 @@
 package xyz.malefic.hell.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.ui.Modifier
 import com.varabyte.kobweb.compose.ui.graphics.Color
@@ -16,6 +20,7 @@ import com.varabyte.kobweb.compose.ui.modifiers.maxWidth
 import com.varabyte.kobweb.compose.ui.modifiers.minHeight
 import com.varabyte.kobweb.compose.ui.modifiers.minWidth
 import com.varabyte.kobweb.compose.ui.modifiers.width
+import com.varabyte.kobweb.compose.ui.modifiers.onClick
 import com.varabyte.kobweb.compose.ui.toAttrs
 import com.varabyte.kobweb.silk.components.icons.fa.FaEllipsisVertical
 import com.varabyte.kobweb.silk.components.icons.fa.IconSize
@@ -29,9 +34,11 @@ import org.jetbrains.compose.web.css.rgba
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.css.Color as CssColor
+import xyz.malefic.hell.components.OptionsModal
 
 @Composable
 fun OptionsButton() {
+    var showOptions by remember { mutableStateOf(false) }
     Button(
         Modifier
             .width(10.percent)
@@ -44,7 +51,8 @@ fun OptionsButton() {
             .backgroundColor(Color.rgb(34, 34, 34))
             .boxShadow(offsetY = 3.px, blurRadius = 5.px, color = rgba(0, 0, 0, 0.2))
             .cursor(Cursor.Pointer)
-            .toAttrs(),
+            .onClick { showOptions = true }
+            .toAttrs()
     ) {
         FaEllipsisVertical(
             Modifier
@@ -52,5 +60,8 @@ fun OptionsButton() {
                 .color(CssColor.white),
             IconSize.XXL,
         )
+    }
+    if (showOptions) {
+        OptionsModal(onClose = { showOptions = false })
     }
 }
