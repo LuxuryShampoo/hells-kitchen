@@ -2,7 +2,7 @@
 jetbrains-compose = "1.8.1"
 kobweb = "0.22.0"
 kotlin = "2.1.21"
-datetime = "0.6.2"
+datetime = "0.8.0-0.6.x-compat"
 kermit = "2.0.5"
 
 [libraries]
